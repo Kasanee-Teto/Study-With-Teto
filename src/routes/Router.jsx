@@ -3,7 +3,7 @@ import RequireAuth from './RequireAuth.jsx'
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Chat from '../pages/Chat.jsx'
-import Chess from '../pages/Chess.jsx'
+import Chess from '../pages/Chess.Jsx'
 
 export default function Router() {
   return (
