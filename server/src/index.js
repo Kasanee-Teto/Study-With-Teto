@@ -1,16 +1,17 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 
 dotenv.config();
+console.log("GROQ_API_KEY loaded?", !!process.env.GROQ_API_KEY);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
 });
 
 app.get("/api/health", (req, res) => {
@@ -24,10 +25,14 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "message is required" });
     }
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
       messages: [
-        { role: "system", content: "Kamu adalah asisten bernama Teto. Jawab singkat, jelas, dan ramah dalam bahasa Indonesia." },
+        {
+          role: "system",
+          content:
+            "Kamu adalah asisten bernama Teto. Jawab singkat, jelas, dan ramah dalam bahasa Indonesia.",
+        },
         { role: "user", content: message },
       ],
       temperature: 0.7,
@@ -36,8 +41,8 @@ app.post("/api/chat", async (req, res) => {
     const reply = completion.choices?.[0]?.message?.content ?? "";
     res.json({ reply });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to call OpenAI" });
+    console.error("Groq error:", err?.message || err);
+    res.status(500).json({ error: "Failed to call Groq", detail: err?.message || String(err) });
   }
 });
 
