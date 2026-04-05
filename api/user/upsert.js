@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         {
           supabase_user_id: user.id,
           github_login: githubLogin,
-          ...(email && { email }),
+          email: email || null,
           display_name: user?.user_metadata?.full_name || githubLogin || email
         },
         { onConflict: 'supabase_user_id' }

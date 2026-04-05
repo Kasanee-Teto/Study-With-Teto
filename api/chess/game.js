@@ -14,8 +14,12 @@ export default async function handler(req, res) {
       .eq('supabase_user_id', user.id)
       .single()
 
-    if (appUserErr || !appUser) {
-      return res.status(400).json({ error: 'User profile not found; call /api/user/upsert first' })
+    if (appUserErr) {
+      // PGRST116 = "no rows" returned by PostgREST — user profile missing
+      if (appUserErr.code === 'PGRST116') {
+        return res.status(400).json({ error: 'User profile not found; call /api/user/upsert first' })
+      }
+      return res.status(500).json({ error: 'Database error' })
     }
 
     const { pgn, result } = req.body || {}
