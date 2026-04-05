@@ -1,0 +1,21 @@
+:root {
+  /* Teto accent */
+  --accent: 255 79 163;   /* pink */
+  --accent2: 255 121 198; /* soft pink */
+
+  /* light */
+  --bg: 247 247 251;
+  --panel: 255 255 255;
+  --text: 20 20 33;
+  --muted: 91 91 107;
+  --border: 20 20 33 / 0.12;
+}
+
+html.dark {
+  /* dark */
+  --bg: 11 11 18;
+  --panel: 18 18 27;
+  --text: 232 232 242;
+  --muted: 162 162 181;
+  --border: 232 232 242 / 0.12;
+}
