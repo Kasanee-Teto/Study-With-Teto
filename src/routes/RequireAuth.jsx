@@ -9,6 +9,9 @@ export default function RequireAuth({ children }) {
   useEffect(() => {
     let mounted = true
 
+    // Bootstrap: resolve session first, then subscribe to changes.
+    // This avoids the race where onAuthStateChange fires before getSession resolves
+    // and incorrectly sets loading=false with a null session.
     supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return
       setSession(data.session)
@@ -16,8 +19,9 @@ export default function RequireAuth({ children }) {
     })
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      // Only update session after bootstrap is complete (loading=false)
+      if (!mounted) return
       setSession(s)
-      setLoading(false)
     })
 
     return () => {

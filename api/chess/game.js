@@ -8,14 +8,15 @@ export default async function handler(req, res) {
     const user = await requireUser(req)
     const admin = supabaseAdmin()
 
-    const email = user.email || null
     const { data: appUser, error: appUserErr } = await admin
       .from('app_users')
-      .select('*')
-      .eq('email', email)
+      .select('id')
+      .eq('supabase_user_id', user.id)
       .single()
 
-    if (appUserErr) return res.status(500).json({ error: 'app_user not found; call /api/user/upsert first' })
+    if (appUserErr || !appUser) {
+      return res.status(400).json({ error: 'User profile not found; call /api/user/upsert first' })
+    }
 
     const { pgn, result } = req.body || {}
     if (!pgn) return res.status(400).json({ error: 'Missing pgn' })
@@ -29,6 +30,9 @@ export default async function handler(req, res) {
     if (error) return res.status(500).json({ error: error.message })
     return res.status(200).json({ game: data })
   } catch (e) {
-    return res.status(401).json({ error: String(e.message || e) })
+    if (e.message === 'Missing Authorization Bearer token' || e.message === 'Invalid token') {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+    return res.status(500).json({ error: 'Server error' })
   }
 }

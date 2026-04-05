@@ -5,6 +5,16 @@ import Dashboard from '../pages/Dashboard.jsx'
 import Chat from '../pages/Chat.jsx'
 import Chess from '../pages/Chess.jsx'
 
+function NotFound() {
+  return (
+    <div style={{ padding: 24, textAlign: 'center' }}>
+      <h2>404 — Page Not Found</h2>
+      <p>The page you are looking for does not exist.</p>
+      <a href="/">Go home</a>
+    </div>
+  )
+}
+
 export default function Router() {
   return (
     <BrowserRouter>
@@ -24,6 +34,8 @@ export default function Router() {
           path="/chess"
           element={<RequireAuth><Chess /></RequireAuth>}
         />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

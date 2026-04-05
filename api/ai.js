@@ -1,8 +1,17 @@
+import { requireUser } from './_lib/requireUser.js'
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   try {
+    await requireUser(req)
+
     const { messages = [], mode = 'chat', model } = req.body || {}
+
+    const effectiveModel = model || process.env.OPENROUTER_DEFAULT_MODEL
+    if (!effectiveModel) {
+      return res.status(500).json({ error: 'Model not configured' })
+    }
 
     const system =
       mode === 'coach'
@@ -10,7 +19,7 @@ export default async function handler(req, res) {
         : "You are Kasane Teto, a friendly study tutor. Be concise, helpful, and encouraging. Use Indonesian by default."
 
     const payload = {
-      model: model || process.env.OPENROUTER_DEFAULT_MODEL,
+      model: effectiveModel,
       messages: [{ role: 'system', content: system }, ...messages]
     }
 
@@ -19,7 +28,6 @@ export default async function handler(req, res) {
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        // optional but recommended by OpenRouter:
         'HTTP-Referer': process.env.PUBLIC_SITE_URL || 'http://localhost',
         'X-Title': 'Study-With-Teto'
       },
@@ -27,14 +35,16 @@ export default async function handler(req, res) {
     })
 
     if (!r.ok) {
-      const errText = await r.text()
-      return res.status(500).json({ error: 'OpenRouter error', details: errText })
+      return res.status(502).json({ error: 'AI service error' })
     }
 
     const data = await r.json()
     const text = data?.choices?.[0]?.message?.content || ''
     return res.status(200).json({ text })
   } catch (e) {
-    return res.status(500).json({ error: 'Server error', details: String(e) })
+    if (e.message === 'Missing Authorization Bearer token' || e.message === 'Invalid token') {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+    return res.status(500).json({ error: 'Server error' })
   }
 }
