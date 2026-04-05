@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useEffect, useState } from 'react'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
@@ -11,7 +12,7 @@ export default function Dashboard() {
 
   async function logout() {
     await supabase.auth.signOut()
-    window.location.href = '/login'
+    navigate('/login', { replace: true })
   }
 
   return (

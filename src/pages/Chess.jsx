@@ -1,28 +1,47 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Chess } from 'chess.js'
 import { Chessboard } from 'react-chessboard'
 import { createEngine } from '../lib/chessEngine'
 import { postJSON, callAI } from '../lib/api'
 
+// Starting FEN — avoids reading refs during render for initial state
+const STARTING_FEN = new Chess().fen()
+
 export default function ChessPage() {
   const gameRef = useRef(new Chess())
   const engineRef = useRef(null)
+  // Generation counter: incremented on reset to ignore stale bestmove callbacks
+  const genRef = useRef(0)
+  const [engineReady, setEngineReady] = useState(false)
 
-  const [fen, setFen] = useState(gameRef.current.fen())
+  const [fen, setFen] = useState(STARTING_FEN)
   const [status, setStatus] = useState('Your move')
+  const [isGameOver, setIsGameOver] = useState(false)
   const [busy, setBusy] = useState(false)
   const [coachText, setCoachText] = useState('')
-
-  const isGameOver = useMemo(() => gameRef.current.isGameOver(), [fen])
+  const [errorText, setErrorText] = useState('')
 
   useEffect(() => {
     async function init() {
       await postJSON('/api/user/upsert')
-      engineRef.current = createEngine()
-      engineRef.current.send('uci')
-      engineRef.current.send('isready')
+      const engine = createEngine()
+      engineRef.current = engine
+
+      // Register handler BEFORE sending any commands
+      engine.setMessageHandler((line) => {
+        if (!line) return
+        if (line.startsWith('readyok')) {
+          setEngineReady(true)
+        }
+      })
+
+      engine.send('uci')
+      engine.send('isready')
     }
-    init()
+    init().catch(err => {
+      console.error(err)
+      setErrorText('Failed to initialise engine.')
+    })
 
     return () => {
       engineRef.current?.terminate?.()
@@ -30,49 +49,74 @@ export default function ChessPage() {
   }, [])
 
   function sync() {
-    setFen(gameRef.current.fen())
-    if (gameRef.current.isGameOver()) setStatus('Game over')
-    else setStatus(gameRef.current.turn() === 'w' ? 'Your move' : "Teto's move")
+    const game = gameRef.current
+    setFen(game.fen())
+    const over = game.isGameOver()
+    setIsGameOver(over)
+    if (over) setStatus('Game over')
+    else setStatus(game.turn() === 'w' ? 'Your move' : "Teto's move")
   }
 
-  async function engineMove() {
-    setBusy(true)
-    setCoachText('')
+  function engineMove() {
     const engine = engineRef.current
     const game = gameRef.current
+    const gen = genRef.current
 
-    // Give engine the position
-    engine.send(`position fen ${game.fen()}`)
-    engine.send('go depth 12')
+    setBusy(true)
+    setCoachText('')
+    setErrorText('')
 
+    // Register handler before issuing go command
     engine.setMessageHandler((line) => {
       if (!line) return
+      if (line.startsWith('readyok')) {
+        setEngineReady(true)
+        return
+      }
       if (line.startsWith('bestmove')) {
+        // Ignore stale callbacks from a previous generation (e.g. after reset)
+        if (genRef.current !== gen) return
+
         const best = line.split(' ')[1]
         if (best && best !== '(none)') {
-          game.move({ from: best.slice(0, 2), to: best.slice(2, 4), promotion: 'q' })
-          sync()
+          try {
+            const promotion = best.length >= 5 ? best[4] : 'q'
+            game.move({ from: best.slice(0, 2), to: best.slice(2, 4), promotion })
+            sync()
+          } catch (e) {
+            console.error('Engine bestmove invalid:', best, e)
+            setErrorText('Engine returned an invalid move.')
+          }
         }
         setBusy(false)
       }
     })
+
+    engine.send(`position fen ${game.fen()}`)
+    engine.send('go depth 12')
   }
 
-  async function onDrop(sourceSquare, targetSquare) {
+  async function onDrop(sourceSquare, targetSquare, piece) {
     const game = gameRef.current
-    if (busy || game.isGameOver()) return false
+    if (busy || game.isGameOver() || !engineReady) return false
     if (game.turn() !== 'w') return false
+
+    // Detect pawn promotion
+    const isPromotion =
+      piece === 'wP' &&
+      targetSquare[1] === '8'
 
     const move = game.move({
       from: sourceSquare,
       to: targetSquare,
-      promotion: 'q'
+      promotion: isPromotion ? 'q' : undefined
     })
     if (!move) return false
 
     sync()
+    setErrorText('')
 
-    // optional: ask coach for quick explanation (after your move)
+    // Ask coach for quick explanation after player move
     try {
       const coach = await callAI({
         mode: 'coach',
@@ -83,8 +127,18 @@ export default function ChessPage() {
       console.warn(e)
     }
 
-    // engine replies
-    setTimeout(engineMove, 200)
+    // Engine replies
+    if (!game.isGameOver()) {
+      setTimeout(() => {
+        try {
+          engineMove()
+        } catch (e) {
+          console.error(e)
+          setBusy(false)
+          setErrorText('Engine error. Please reset the game.')
+        }
+      }, 200)
+    }
     return true
   }
 
@@ -97,13 +151,25 @@ export default function ChessPage() {
         ? '1/2-1/2'
         : 'unknown'
 
-    await postJSON('/api/chess/game', { pgn, result })
-    alert('Game saved!')
+    try {
+      await postJSON('/api/chess/game', { pgn, result })
+      alert('Game saved!')
+    } catch (e) {
+      alert('Failed to save game: ' + (e.message || String(e)))
+    }
   }
 
   function reset() {
+    // Increment generation so any in-flight bestmove is ignored
+    genRef.current += 1
+    // Stop the engine
+    engineRef.current?.send('stop')
+
     gameRef.current = new Chess()
+    setBusy(false)
+    setIsGameOver(false)
     setCoachText('')
+    setErrorText('')
     sync()
   }
 
@@ -111,10 +177,16 @@ export default function ChessPage() {
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
       <h2>Chess vs Teto</h2>
       <div>Status: {status} {busy ? '(thinking...)' : ''}</div>
+      {!engineReady && <div style={{ color: 'orange' }}>Engine loading…</div>}
+      {errorText && <div style={{ color: 'red' }}>{errorText}</div>}
 
       <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 16, marginTop: 12 }}>
         <div>
-          <Chessboard position={fen} onPieceDrop={onDrop} />
+          <Chessboard
+            position={fen}
+            onPieceDrop={onDrop}
+            arePiecesDraggable={!busy && engineReady && !isGameOver}
+          />
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <button onClick={reset}>Reset</button>
             <button onClick={saveGame} disabled={!isGameOver}>
