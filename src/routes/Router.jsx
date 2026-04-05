@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import RequireAuth from './RequireAuth'
-import Login from '../pages/Login'
-import Dashboard from '../pages/Dashboard'
-import Chat from '../pages/Chat'
-import Chess from '../pages/Chess'
+import RequireAuth from './RequireAuth.jsx'
+import Login from '../pages/Login.jsx'
+import Dashboard from '../pages/Dashboard.jsx'
+import Chat from '../pages/Chat.jsx'
+import Chess from '../pages/Chess.jsx'
 
 export default function Router() {
   return (
