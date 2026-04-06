@@ -3,6 +3,10 @@ import { requireUser } from './_lib/requireUser.js'
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  if (!process.env.OPENROUTER_API_KEY) {
+    return res.status(500).json({ error: 'OpenRouter API key is not configured on the server' })
+  }
+
   try {
     await requireUser(req)
 

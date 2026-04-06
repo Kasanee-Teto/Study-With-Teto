@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/postinstall.js",
     "dev": "vite",
+    "dev:full": "vercel dev",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

@@ -26,3 +26,7 @@ dist-ssr
 
 .vercel
 .env*.local
+
+# Stockfish engine binaries copied from node_modules at postinstall
+public/stockfish-18-lite-single.js
+public/stockfish-18-lite-single.wasm
