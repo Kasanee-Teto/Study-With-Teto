@@ -27,25 +27,49 @@ export default async function handler(req, res) {
       messages: [{ role: 'system', content: system }, ...messages]
     }
 
-    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.PUBLIC_SITE_URL || 'http://localhost',
-        'X-Title': 'Study-With-Teto'
-      },
-      body: JSON.stringify(payload)
-    })
+    const ac = new AbortController()
+    const timeoutMs = Number(process.env.OPENROUTER_TIMEOUT_MS || 30000)
+    const timeout = setTimeout(() => ac.abort(), timeoutMs)
+    let r
+    try {
+      r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.PUBLIC_SITE_URL || 'http://localhost',
+          'X-Title': 'Study-With-Teto'
+        },
+        body: JSON.stringify(payload),
+        signal: ac.signal
+      })
+    } finally {
+      clearTimeout(timeout)
+    }
 
     if (!r.ok) {
-      return res.status(502).json({ error: 'AI service error' })
+      const raw = await r.text()
+      let upstreamMessage = ''
+      try {
+        const parsed = JSON.parse(raw)
+        upstreamMessage = parsed?.error?.message || parsed?.message || ''
+      } catch {
+        upstreamMessage = raw || ''
+      }
+      const safeMessage = String(upstreamMessage).replace(/sk-[A-Za-z0-9_-]+/g, '[redacted]').slice(0, 300)
+      return res.status(502).json({
+        error: 'AI service error',
+        detail: safeMessage || `OpenRouter returned status ${r.status}`
+      })
     }
 
     const data = await r.json()
     const text = data?.choices?.[0]?.message?.content || ''
     return res.status(200).json({ text })
   } catch (e) {
+    if (e?.name === 'AbortError') {
+      return res.status(504).json({ error: 'AI service timeout' })
+    }
     if (e.message === 'Missing Authorization Bearer token' || e.message === 'Invalid token') {
       return res.status(401).json({ error: 'Unauthorized' })
     }
