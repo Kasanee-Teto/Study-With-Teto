@@ -6,6 +6,7 @@ export default function Chat() {
   const [messages, setMessages] = useState([]) // {role, content}
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
+  const [sendError, setSendError] = useState(null)
 
   const canSend = useMemo(() => input.trim().length > 0 && !busy && sessionId, [input, busy, sessionId])
 
@@ -29,8 +30,10 @@ export default function Chat() {
     const text = input.trim()
     setInput('')
     setBusy(true)
+    setSendError(null)
 
-    const next = [...messages, { role: 'user', content: text }]
+    const userMsg = { role: 'user', content: text }
+    const next = [...messages, userMsg]
     setMessages(next)
 
     try {
@@ -43,7 +46,22 @@ export default function Chat() {
       await postJSON('/api/chat/message', { sessionId, role: 'assistant', content: reply })
     } catch (e) {
       console.error(e)
-      alert(e.message || String(e))
+      // Revert the optimistic user message so chat state stays consistent
+      setMessages(messages)
+      setInput(text)
+
+      // Surface a specific, actionable error message
+      let errorMessage = e.message || 'Failed to send message'
+      if (e.status === 401) {
+        errorMessage = 'Session expired or unauthorized. Please sign in again.'
+      } else if (e.status === 429) {
+        errorMessage = 'AI rate limit reached. Please wait a moment and try again.'
+      } else if (e.status === 400) {
+        errorMessage = `AI configuration error: ${e.detail || 'check model name'}.`
+      } else if (e.status === 500 && e.message?.includes('misconfigured')) {
+        errorMessage = 'AI service is not configured on the server. Contact the administrator.'
+      }
+      setSendError(errorMessage)
     } finally {
       setBusy(false)
     }
@@ -63,6 +81,12 @@ export default function Chat() {
         ))}
         {busy && <div><i>Teto is thinking...</i></div>}
       </div>
+
+      {sendError && (
+        <div style={{ marginTop: 8, color: '#c00', fontSize: 14 }}>
+          ⚠️ {sendError}
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
         <input

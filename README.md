@@ -112,7 +112,4 @@ The project is designed to be **functional**, have **real-world impact** (study 
 - Donations (Ko-fi / GitHub Sponsors)
 - Team plan for study groups (shared tasks/flashcards)
 
----
-
-## Contributing
-This is a student project. One representative member can submit on behalf of the team.
+--
