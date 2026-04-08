@@ -1,10 +1,5 @@
 import { requireUser } from './_lib/requireUser.js'
-
-function buildSystem(mode) {
-  return mode === 'coach'
-    ? "You are Kasane Teto, a friendly chess coach. Explain moves simply, give 1-3 actionable tips."
-    : "You are Kasane Teto, a friendly study tutor. Be concise, helpful, and encouraging. Use Indonesian by default."
-}
+import { buildTetoSystem } from './_lib/persona.js'
 
 async function postJson(url, { headers, body }) {
   const r = await fetch(url, {
@@ -13,12 +8,20 @@ async function postJson(url, { headers, body }) {
     body: JSON.stringify(body),
   })
 
-  const data = await r.json().catch(() => ({}))
+  // upstream kadang balas non-JSON (HTML/text), jadi amanin:
+  const raw = await r.text()
+  let data = {}
+  try {
+    data = raw ? JSON.parse(raw) : {}
+  } catch {
+    data = { raw }
+  }
+
   return { ok: r.ok, status: r.status, data }
 }
 
 function getUpstreamMessage(data) {
-  return data?.error?.message || data?.error || data?.message || null
+  return data?.error?.message || data?.error || data?.message || data?.raw || null
 }
 
 function createProviderError({ provider, status, error, detail }) {
@@ -36,7 +39,7 @@ function statusToClientError(status) {
   return 'AI upstream error'
 }
 
-async function callOpenRouter({ messages, mode, model, requestId, ts }) {
+async function callOpenRouter({ messages, model, systemPrompt, requestId, ts }) {
   const apiKey = process.env.OPENROUTER_API_KEY
   const effectiveModel = model || process.env.OPENROUTER_DEFAULT_MODEL
 
@@ -58,11 +61,16 @@ async function callOpenRouter({ messages, mode, model, requestId, ts }) {
     })
   }
 
-  console.log(`[ai][${requestId}][${ts}] request provider=openrouter mode=${mode} model=${effectiveModel} messages=${messages.length}`)
+  console.log(
+    `[ai][${requestId}][${ts}] request provider=openrouter model=${effectiveModel} messages=${messages.length}`
+  )
 
   const body = {
     model: effectiveModel,
-    messages: [{ role: 'system', content: buildSystem(mode) }, ...messages],
+    temperature: 0.3,
+    top_p: 0.9,
+    max_tokens: 500,
+    messages: [{ role: 'system', content: systemPrompt }, ...messages],
   }
 
   const { ok, status, data } = await postJson('https://openrouter.ai/api/v1/chat/completions', {
@@ -85,11 +93,12 @@ async function callOpenRouter({ messages, mode, model, requestId, ts }) {
   }
 
   const text = data?.choices?.[0]?.message?.content || ''
-  console.log(`[ai][${requestId}][${ts}] success provider=openrouter model=${effectiveModel} replyLen=${text.length}`)
+  console.log(`[ai][${requestId}][${ts}] success provider=openrouter replyLen=${text.length}`)
+
   return { text, provider: 'openrouter', model: effectiveModel }
 }
 
-async function callGroq({ messages, mode, requestId, ts }) {
+async function callGroq({ messages, systemPrompt, requestId, ts }) {
   const apiKey = process.env.GROQ_API_KEY
   const effectiveModel = process.env.GROQ_DEFAULT_MODEL
 
@@ -102,11 +111,14 @@ async function callGroq({ messages, mode, requestId, ts }) {
     })
   }
 
-  console.log(`[ai][${requestId}][${ts}] request provider=groq mode=${mode} model=${effectiveModel} messages=${messages.length}`)
+  console.log(`[ai][${requestId}][${ts}] request provider=groq model=${effectiveModel} messages=${messages.length}`)
 
   const body = {
     model: effectiveModel,
-    messages: [{ role: 'system', content: buildSystem(mode) }, ...messages],
+    temperature: 0.3,
+    top_p: 0.9,
+    max_tokens: 500,
+    messages: [{ role: 'system', content: systemPrompt }, ...messages],
   }
 
   const { ok, status, data } = await postJson('https://api.groq.com/openai/v1/chat/completions', {
@@ -125,7 +137,8 @@ async function callGroq({ messages, mode, requestId, ts }) {
   }
 
   const text = data?.choices?.[0]?.message?.content || ''
-  console.log(`[ai][${requestId}][${ts}] success provider=groq model=${effectiveModel} replyLen=${text.length}`)
+  console.log(`[ai][${requestId}][${ts}] success provider=groq replyLen=${text.length}`)
+
   return { text, provider: 'groq', model: effectiveModel }
 }
 
@@ -141,16 +154,22 @@ function chooseHttpStatus(failures) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const requestId = crypto.randomUUID()
+  const requestId = globalThis.crypto?.randomUUID?.() || String(Date.now())
   const ts = new Date().toISOString()
 
   try {
     await requireUser(req)
 
-    const { messages = [], mode = 'chat', model } = req.body || {}
+    const body = req.body || {}
+    const messages = Array.isArray(body.messages) ? body.messages : []
+    const mode = body.mode || 'chat'
+    const model = body.model
+
+    // Persona prompt (ID/EN auto via messages)
+    const systemPrompt = buildTetoSystem(mode, messages)
 
     try {
-      const result = await callOpenRouter({ messages, mode, model, requestId, ts })
+      const result = await callOpenRouter({ messages, model, systemPrompt, requestId, ts })
       return res.status(200).json({ text: result.text, provider: result.provider, requestId })
     } catch (openrouterError) {
       console.error(
@@ -159,7 +178,7 @@ export default async function handler(req, res) {
       )
 
       try {
-        const fallback = await callGroq({ messages, mode, requestId, ts })
+        const fallback = await callGroq({ messages, systemPrompt, requestId, ts })
         return res.status(200).json({
           text: fallback.text,
           provider: fallback.provider,
@@ -194,7 +213,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized', requestId })
     }
 
-    console.error(`[ai][${requestId}][${ts}] unhandled error:`, e.message)
-    return res.status(500).json({ error: 'Server error', requestId })
+    console.error(`[ai][${requestId}][${ts}] unhandled error:`, e)
+    return res.status(500).json({ error: 'Server error', requestId, detail: String(e?.message || e) })
   }
 }
