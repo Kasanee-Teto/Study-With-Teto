@@ -1,11 +1,12 @@
 import { useState } from "react";
-import "./sign_in.css";
+import "./login.css";
 import { supabase } from '../lib/supabaseClient';
 
 export default function Login() {
-    const [activeForm, setActiveForm] = useState("signin");
+    const [activeForm, setActiveForm] = useState("login");
     const [formData, setFormData] = useState({
         email: '',
+        username: '',
         password: '',
         confirmPassword: ''
     });
@@ -70,7 +71,7 @@ export default function Login() {
         setLoading(true);
         try {
             const { error: signUpError } = await supabase.auth.signUp({
-                email: formData.email,
+                email: formData.username + '@local',
                 password: formData.password
             });
             
@@ -88,16 +89,28 @@ export default function Login() {
             <h1 className="section-title">Welcome To Teto Chatbot</h1>
 
             <div className="forms">
-                <div className={`form-wrapper ${isLoginActive ? "is-active" : ""}`}>
+                {/* Tab buttons - always visible */}
+                <div className="button-tabs">
                     <button
                         type="button"
-                        className="switcher switcher-login"
+                        className={`switcher switcher-login ${isLoginActive ? "is-active" : ""}`}
                         onClick={() => setActiveForm("login")}
                     >
                         Login
                         <span className="underline"></span>
                     </button>
+                    <button
+                        type="button"
+                        className={`switcher switcher-signin ${isSigninActive ? "is-active" : ""}`}
+                        onClick={() => setActiveForm("signin")}
+                    >
+                        Sign In
+                        <span className="underline"></span>
+                    </button>
+                </div>
 
+                {/* Login Form */}
+                <div className={`form-wrapper ${isLoginActive ? "is-active" : ""}`}>
                     <form className="form form-login" onSubmit={handleLoginSubmit}>
                         <fieldset>
                             <legend>Please, enter your email and password for login.</legend>
@@ -160,29 +173,21 @@ export default function Login() {
                     </form>
                 </div>
                 
+                {/* Sign Up Form */}
                 <div className={`form-wrapper ${isSigninActive ? "is-active" : ""}`}>
-                    <button
-                        type="button"
-                        className="switcher switcher-signin"
-                        onClick={() => setActiveForm("signin")}
-                    >
-                        Sign in
-                        <span className="underline"></span>
-                    </button>
-
                     <form className="form form-signin" onSubmit={handleSignUpSubmit}>
                         <fieldset>
-                            <legend>Please, enter your email, password and password confirmation for sign up.</legend>
+                            <legend>Please, enter your username, password and password confirmation for sign up.</legend>
 
                             {error && <div className="error-message">{error}</div>}
 
                             <div className="input-block">
-                                <label htmlFor="signin-email">E-mail</label>
+                                <label htmlFor="signin-username">Username</label>
                                 <input 
-                                    id="signin-email" 
-                                    type="email" 
+                                    id="signin-username" 
+                                    type="text" 
                                     required 
-                                    value={formData.email}
+                                    value={formData.username}
                                     onChange={handleInputChange}
                                 />
                             </div>
