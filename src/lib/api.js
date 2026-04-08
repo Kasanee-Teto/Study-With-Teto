@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient.js'
 
 const base = import.meta.env.VITE_API_BASE_URL || ''
+const isDev = import.meta.env.DEV
 
 async function authHeaders() {
   const { data } = await supabase.auth.getSession()
@@ -16,8 +17,38 @@ export async function postJSON(path, body) {
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify(body || {})
   })
-  const data = await r.json()
-  if (!r.ok) throw new Error(data?.error || 'Request failed')
+
+  let data
+  try {
+    data = await r.json()
+  } catch {
+    data = {}
+  }
+
+  if (!r.ok) {
+    const requestId = data?.requestId
+    const detail = data?.detail
+    const upstreamStatus = data?.upstreamStatus
+
+    // Build a descriptive message
+    let message = data?.error || `HTTP ${r.status}`
+    if (detail) message += ` — ${detail}`
+
+    if (isDev) {
+      const debugParts = [`[${r.status}] POST ${path}`]
+      if (requestId) debugParts.push(`requestId=${requestId}`)
+      if (upstreamStatus) debugParts.push(`upstreamStatus=${upstreamStatus}`)
+      console.warn('[postJSON debug]', ...debugParts)
+    }
+
+    const err = new Error(message)
+    err.status = r.status
+    err.requestId = requestId
+    err.upstreamStatus = upstreamStatus
+    err.detail = detail
+    throw err
+  }
+
   return data
 }
 

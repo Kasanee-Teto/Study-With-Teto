@@ -114,5 +114,77 @@ The project is designed to be **functional**, have **real-world impact** (study 
 
 ---
 
-## Contributing
-This is a student project. One representative member can submit on behalf of the team.
+## Troubleshooting AI 502/401
+
+### Symptoms
+- `POST /api/ai 502 (Bad Gateway)` in browser console
+- Generic `Error: AI service error` from frontend
+- Supabase warning: `Session as retrieved from URL was issued in the future? Check the device clock`
+
+### Root Cause (502)
+The backend was mapping **all** OpenRouter upstream failures to a single generic `AI service error`, hiding the real reason (bad API key, wrong model name, quota exceeded, etc.).
+
+### Checklist
+
+**1. Set up required env vars**
+
+For local development create a `.env` file in the project root (not committed):
+```env
+# Frontend (Vite)
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_API_BASE_URL=http://localhost:3000
+
+# Backend (Vercel Functions)
+SUPABASE_URL=your_project_url
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+OPENROUTER_API_KEY=your_openrouter_key
+OPENROUTER_DEFAULT_MODEL=your_model_name   # e.g. mistralai/mistral-7b-instruct:free
+PUBLIC_SITE_URL=http://localhost:5173
+```
+
+**2. Verify env vars are loaded**
+
+`/api/*` routes are Vercel Serverless Functions, **not** served by plain `vite dev`.
+Run the local dev server with:
+```bash
+npx vercel dev          # serves both Vite frontend + /api/* functions
+# NOT: npm run dev      # only serves Vite — /api/* will 404
+```
+
+To confirm env vars are available at runtime, add a temporary test route:
+```bash
+curl http://localhost:3000/api/ping   # should return {"ok":true}
+```
+
+**3. Common causes and expected error responses**
+
+| Cause | Backend status | `error` field |
+|---|---|---|
+| `OPENROUTER_API_KEY` not set | 500 | `AI service misconfigured` / `OPENROUTER_API_KEY is not set on the server` |
+| `OPENROUTER_DEFAULT_MODEL` not set | 500 | `AI service misconfigured` / `No model configured` |
+| Invalid / expired OpenRouter key | 401 | `AI upstream unauthorized — check OPENROUTER_API_KEY` |
+| Wrong/unknown model name | 400 | `Bad request to AI upstream — check model name or payload` |
+| Quota / rate limit exceeded | 429 | `AI rate limit or quota exceeded` |
+| Other OpenRouter error | 502 | `AI upstream error` with `upstreamStatus` and `detail` |
+| Not logged in / expired session | 401 | `Unauthorized` |
+
+**4. Supabase clock warning**
+
+> `Session as retrieved from URL was issued in the future? Check the device clock`
+
+This means your machine's system clock is ahead of the server's. Fix it by syncing your clock:
+- **Windows:** Settings → Time & Language → Sync now
+- **macOS:** System Settings → Date & Time → Set automatically
+- **Linux:** `sudo timedatectl set-ntp true`
+
+This warning does not change the auth flow, but it may cause token validation to behave unexpectedly. Syncing the clock will resolve it.
+
+**5. How to verify the fix**
+1. Start the server with `npx vercel dev`
+2. Sign in
+3. Open the Chat page
+4. If AI fails, the error banner below the chat box will show the specific reason (not just "AI service error")
+5. Backend logs in the `vercel dev` terminal show `[ai][<requestId>]` lines with model and upstream status
+
+---
