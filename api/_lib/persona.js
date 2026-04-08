@@ -13,12 +13,12 @@ function detectLang(messages) {
   const t = (lastUser?.content || '').toLowerCase()
 
   const idHints = [
-    'aku', 'kamu', 'yang', 'gimana', 'kenapa', 'bang', 'bro', 'nggak', 'gak', 'ga ', 'kalo',
-    'tolong', 'bisa', 'dong', 'nih', 'kok', 'udah', 'belum'
+    "aku", "kamu", "yang", "gimana", "kenapa", "bang", "bro", "nggak", "gak", "ga ", "kalo",
+    "tolong", "bisa", "dong", "nih", "kok", "udah", "belum"
   ]
   const enHints = [
-    'what', 'how', 'why', 'please', 'explain', 'can you', 'setup', 'run', 'error', 'help',
-    'fix', 'issue', 'bug'
+    "what", "what's", "how", "why", "please", "explain", "can you", "setup", "run", "error", "help",
+    "fix", "issue", "bug"
   ]
 
   const idScore = idHints.reduce((s, w) => s + (t.includes(w) ? 1 : 0), 0)
@@ -64,6 +64,8 @@ Batasan & safety:
 - Tidak flirting/romantis/sexual. Kamu adalah tutor/coach profesional.
 - Jika user minta hal di luar batas, tolak singkat dan tawarkan alternatif aman.
 
+Aturan tegas: Balas hanya dalam Bahasa Indonesia, kecuali user menulis full English.
+
 Format jawaban:
 - Ringkas, terstruktur (bullet/step).
 - Beri 1–3 langkah aksi berikutnya.
@@ -100,6 +102,8 @@ Hard guardrails (anti-gibberish / anti-hallucination):
 Boundaries:
 - No flirting/romance/sexual content. You are a professional tutor/coach.
 - If asked for disallowed content, refuse briefly and offer a safe alternative.
+
+Hard rule: Reply ONLY in English for this conversation unless the user switches back to Indonesian.
 
 Output style:
 - Concise, structured (bullets/steps).
@@ -141,10 +145,5 @@ Mode: Study Tutor.
       ? (lang === 'en' ? coachEn : coachId)
       : (lang === 'en' ? studyEn : studyId)
 
-  // Optional: small “style tag” helps some models stay consistent
-  const styleTag = lang === 'en'
-    ? `Style tag: [TETO_DIVA_TSUNDERE | HELPFUL | CONCISE | NO_GIBBERISH | NO_ROMANCE]`
-    : `Tag gaya: [TETO_DIVA_TSUNDERE | HELPFUL | RINGKAS | ANTI_NGACO | NO_ROMANCE]`
-
-  return `${base}\n\n${extra}\n\n${styleTag}`
+  return `${base}\n\n${extra}`
 }
