@@ -1,5 +1,143 @@
 import { requireUser } from './_lib/requireUser.js'
 
+function buildSystem(mode) {
+  return mode === 'coach'
+    ? "You are Kasane Teto, a friendly chess coach. Explain moves simply, give 1-3 actionable tips."
+    : "You are Kasane Teto, a friendly study tutor. Be concise, helpful, and encouraging. Use Indonesian by default."
+}
+
+async function postJson(url, { headers, body }) {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: JSON.stringify(body),
+  })
+
+  const data = await r.json().catch(() => ({}))
+  return { ok: r.ok, status: r.status, data }
+}
+
+function getUpstreamMessage(data) {
+  return data?.error?.message || data?.error || data?.message || null
+}
+
+function createProviderError({ provider, status, error, detail }) {
+  const e = new Error(error)
+  e.provider = provider
+  e.status = status
+  e.detail = detail
+  return e
+}
+
+function statusToClientError(status) {
+  if (status === 401 || status === 403) return 'AI upstream unauthorized — check API key'
+  if (status === 429) return 'AI rate limit or quota exceeded. Try again later.'
+  if (status === 400) return 'Bad request to AI upstream — check model name or payload'
+  return 'AI upstream error'
+}
+
+async function callOpenRouter({ messages, mode, model, requestId, ts }) {
+  const apiKey = process.env.OPENROUTER_API_KEY
+  const effectiveModel = model || process.env.OPENROUTER_DEFAULT_MODEL
+
+  if (!apiKey) {
+    throw createProviderError({
+      provider: 'openrouter',
+      status: 500,
+      error: 'AI service misconfigured',
+      detail: 'OPENROUTER_API_KEY is not set on the server',
+    })
+  }
+
+  if (!effectiveModel) {
+    throw createProviderError({
+      provider: 'openrouter',
+      status: 500,
+      error: 'AI service misconfigured',
+      detail: 'No model configured. Set OPENROUTER_DEFAULT_MODEL or pass model in request.',
+    })
+  }
+
+  console.log(`[ai][${requestId}][${ts}] request provider=openrouter mode=${mode} model=${effectiveModel} messages=${messages.length}`)
+
+  const body = {
+    model: effectiveModel,
+    messages: [{ role: 'system', content: buildSystem(mode) }, ...messages],
+  }
+
+  const { ok, status, data } = await postJson('https://openrouter.ai/api/v1/chat/completions', {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'HTTP-Referer': process.env.PUBLIC_SITE_URL || 'http://localhost',
+      'X-Title': 'Study-With-Teto',
+    },
+    body,
+  })
+
+  if (!ok) {
+    const detail = getUpstreamMessage(data)
+    throw createProviderError({
+      provider: 'openrouter',
+      status,
+      error: statusToClientError(status),
+      detail,
+    })
+  }
+
+  const text = data?.choices?.[0]?.message?.content || ''
+  console.log(`[ai][${requestId}][${ts}] success provider=openrouter model=${effectiveModel} replyLen=${text.length}`)
+  return { text, provider: 'openrouter', model: effectiveModel }
+}
+
+async function callGroq({ messages, mode, requestId, ts }) {
+  const apiKey = process.env.GROQ_API_KEY
+  const effectiveModel = process.env.GROQ_DEFAULT_MODEL
+
+  if (!apiKey || !effectiveModel) {
+    throw createProviderError({
+      provider: 'groq',
+      status: 500,
+      error: 'AI fallback unavailable',
+      detail: 'GROQ_API_KEY or GROQ_DEFAULT_MODEL is not configured',
+    })
+  }
+
+  console.log(`[ai][${requestId}][${ts}] request provider=groq mode=${mode} model=${effectiveModel} messages=${messages.length}`)
+
+  const body = {
+    model: effectiveModel,
+    messages: [{ role: 'system', content: buildSystem(mode) }, ...messages],
+  }
+
+  const { ok, status, data } = await postJson('https://api.groq.com/openai/v1/chat/completions', {
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body,
+  })
+
+  if (!ok) {
+    const detail = getUpstreamMessage(data)
+    throw createProviderError({
+      provider: 'groq',
+      status,
+      error: statusToClientError(status),
+      detail,
+    })
+  }
+
+  const text = data?.choices?.[0]?.message?.content || ''
+  console.log(`[ai][${requestId}][${ts}] success provider=groq model=${effectiveModel} replyLen=${text.length}`)
+  return { text, provider: 'groq', model: effectiveModel }
+}
+
+function chooseHttpStatus(failures) {
+  const statuses = failures.map((f) => f.status).filter(Boolean)
+  if (statuses.some((s) => s === 401 || s === 403)) return 401
+  if (statuses.includes(429)) return 429
+  if (statuses.includes(400)) return 400
+  if (statuses.every((s) => s >= 500 && s < 600)) return 502
+  return statuses[0] || 502
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -9,112 +147,53 @@ export default async function handler(req, res) {
   try {
     await requireUser(req)
 
-    // Validate required server env vars up front
-    const apiKey = process.env.OPENROUTER_API_KEY
-    if (!apiKey) {
-      console.error(`[ai][${requestId}][${ts}] OPENROUTER_API_KEY is not set`)
-      return res.status(500).json({
-        error: 'AI service misconfigured',
-        detail: 'OPENROUTER_API_KEY is not set on the server',
-        requestId
-      })
-    }
-
     const { messages = [], mode = 'chat', model } = req.body || {}
 
-    const effectiveModel = model || process.env.OPENROUTER_DEFAULT_MODEL
-    if (!effectiveModel) {
-      console.error(`[ai][${requestId}][${ts}] No model configured (OPENROUTER_DEFAULT_MODEL missing and none in request)`)
-      return res.status(500).json({
-        error: 'AI service misconfigured',
-        detail: 'No model configured. Set OPENROUTER_DEFAULT_MODEL env var or pass model in request.',
-        requestId
-      })
-    }
-
-    console.log(`[ai][${requestId}][${ts}] request mode=${mode} model=${effectiveModel} messages=${messages.length}`)
-
-    const system =
-      mode === 'coach'
-        ? "You are Kasane Teto, a friendly chess coach. Explain moves simply, give 1-3 actionable tips."
-        : "You are Kasane Teto, a friendly study tutor. Be concise, helpful, and encouraging. Use Indonesian by default."
-
-    const payload = {
-      model: effectiveModel,
-      messages: [{ role: 'system', content: system }, ...messages]
-    }
-
-    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.PUBLIC_SITE_URL || 'http://localhost',
-        'X-Title': 'Study-With-Teto'
-      },
-      body: JSON.stringify(payload)
-    })
-
-    if (!r.ok) {
-      let upstreamBody = null
-      let upstreamMessage = null
-      try {
-        upstreamBody = await r.json()
-        upstreamMessage = upstreamBody?.error?.message || upstreamBody?.error || null
-      } catch {
-        // upstream returned non-JSON; leave upstreamBody null
-      }
-
+    try {
+      const result = await callOpenRouter({ messages, mode, model, requestId, ts })
+      return res.status(200).json({ text: result.text, provider: result.provider, requestId })
+    } catch (openrouterError) {
       console.error(
-        `[ai][${requestId}][${ts}] upstream error status=${r.status} model=${effectiveModel}`,
-        upstreamMessage || '(no message)'
+        `[ai][${requestId}][${ts}] provider=openrouter failed status=${openrouterError.status || 'unknown'}`,
+        openrouterError.detail || openrouterError.message
       )
 
-      // Pass through 401/403 from OpenRouter as 401 to client
-      if (r.status === 401 || r.status === 403) {
-        return res.status(401).json({
-          error: 'AI upstream unauthorized — check OPENROUTER_API_KEY',
-          upstreamStatus: r.status,
-          requestId
+      try {
+        const fallback = await callGroq({ messages, mode, requestId, ts })
+        return res.status(200).json({
+          text: fallback.text,
+          provider: fallback.provider,
+          fallbackFrom: 'openrouter',
+          requestId,
+        })
+      } catch (groqError) {
+        console.error(
+          `[ai][${requestId}][${ts}] provider=groq failed status=${groqError.status || 'unknown'}`,
+          groqError.detail || groqError.message
+        )
+
+        const failures = [openrouterError, groqError].map((e) => ({
+          provider: e.provider || 'unknown',
+          status: e.status || null,
+          error: e.message || 'Provider failed',
+          detail: e.detail || null,
+        }))
+
+        const status = chooseHttpStatus(failures)
+        return res.status(status).json({
+          error: statusToClientError(status),
+          detail: 'All configured AI providers failed',
+          upstreamStatus: failures[0]?.status || null,
+          requestId,
+          failures,
         })
       }
-
-      // 429 rate-limit / quota
-      if (r.status === 429) {
-        return res.status(429).json({
-          error: 'AI rate limit or quota exceeded. Try again later.',
-          upstreamStatus: r.status,
-          requestId
-        })
-      }
-
-      // 400 bad request (e.g. unknown model)
-      if (r.status === 400) {
-        return res.status(400).json({
-          error: 'Bad request to AI upstream — check model name or payload',
-          detail: upstreamMessage,
-          upstreamStatus: r.status,
-          requestId
-        })
-      }
-
-      // All other upstream errors → 502 with details
-      return res.status(502).json({
-        error: 'AI upstream error',
-        detail: upstreamMessage,
-        upstreamStatus: r.status,
-        requestId
-      })
     }
-
-    const data = await r.json()
-    const text = data?.choices?.[0]?.message?.content || ''
-    console.log(`[ai][${requestId}][${ts}] success model=${effectiveModel} replyLen=${text.length}`)
-    return res.status(200).json({ text, requestId })
   } catch (e) {
     if (e.message === 'Missing Authorization Bearer token' || e.message === 'Invalid token') {
       return res.status(401).json({ error: 'Unauthorized', requestId })
     }
+
     console.error(`[ai][${requestId}][${ts}] unhandled error:`, e.message)
     return res.status(500).json({ error: 'Server error', requestId })
   }
