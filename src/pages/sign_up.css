@@ -13,6 +13,16 @@ body {
   box-sizing: border-box;
 }
 
+.sign-up-hightlight{
+  color: #a7e245;
+  font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  margin-top: 50px;
+  width: 100%;
+}
+
 .sign-up-page {
   min-height: 100vh;
   margin: 0;
@@ -65,9 +75,9 @@ body {
   margin-top: 20px;
   padding: 30px 25px;
   border-radius: 5px;
-  background-color: #fff;
+  background-color: #f59191;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.5s ease-out;
 }
 
 @keyframes slideUp {
@@ -97,7 +107,7 @@ body {
 
 .sign-up-page .input-block {
   margin-bottom: 20px;
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn 0.6s ease-out forwards;
 }
 
 .sign-up-page .input-block:nth-child(1) {
@@ -113,7 +123,7 @@ body {
 }
 
 .sign-up-page .input-block:nth-child(4) {
-  animation-delay: 0.2s;
+  animation-delay: 0.1s;
 }
 
 @keyframes fadeIn {
@@ -156,11 +166,12 @@ body {
   line-height: 40px;
   border-radius: 25px;
   border: none;
-  transition: all 0.3s ease-out;
+  transition: all 0.5s ease-out;
   color: #fbfdff;
   background: #a7e245;
   cursor: pointer;
   font-weight: 600;
+
 }
 
 .sign-up-page .form [type="submit"]:hover {

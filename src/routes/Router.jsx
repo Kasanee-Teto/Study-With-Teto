@@ -4,6 +4,7 @@ import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Chat from '../pages/Chat.jsx'
 import Chess from '../pages/Chess.jsx'
+import SignUpPage from '../pages/SignUp.jsx'
 
 function NotFound() {
   return (
@@ -19,9 +20,12 @@ export default function Router() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
+        
         <Route
           path="/dashboard"
           element={<RequireAuth><Dashboard /></RequireAuth>}

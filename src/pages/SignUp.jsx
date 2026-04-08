@@ -58,6 +58,8 @@ export default function SignUpPage() {
         <section className="sign-up-page forms-section">
             <h1 className="section-title">Welcome To Teto Chatbot</h1>
 
+            <div className="sign-up-hightlight">Sign up</div>
+            
             <div className="forms">
                 <form className="form" onSubmit={handleSubmit}>
                     <fieldset>
