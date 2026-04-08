@@ -1,15 +1,13 @@
 body {
 	margin: 0;
 	font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
-	background-image: url(../../assets/teto1.png);
+	background-image: url(../assets/teto1.png);
 	background-repeat: no-repeat;
 	background-position: center center;
 	background-attachment: fixed;
 	background-size: cover;
 }
 
-
-.sign-in-page,
 .sign-in-page * {
   box-sizing: border-box;
 }
@@ -18,29 +16,18 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: Roboto, -apple-system, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../../assets/teto.jpg);
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto.jpg);
   background-size: 100% 100%;
   background-position: center;
   background-attachment: fixed;
   padding: 24px;
 }
 
-body {
-	margin: 0;
-	font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
-	background-image: url(../../assets/teto1.png);
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-attachment: fixed;
-	background-size: cover;
-}
-
-
 .sign-in-page {
   min-height: 100vh;
   margin: 0;
   font-family: Roboto, -apple-system, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../../assets/teto.jpg);
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto.jpg);
   background-size: 100% 100%;
   background-position: center;
   background-attachment: fixed;
@@ -69,6 +56,57 @@ body {
   align-items: center;
   justify-content: center;
   margin-top: 30px;
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+}
+
+.sign-in-page .form-wrapper {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+}
+
+.sign-in-page .form-wrapper.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sign-in-page .switcher {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 20px;
+  letter-spacing: 1px;
+  transition: all 0.3s ease-out;
+  outline: none;
+}
+
+.sign-in-page .switcher:hover {
+  color: #a7e245;
+}
+
+.sign-in-page .switcher .underline {
+  display: block;
+  width: 0;
+  height: 3px;
+  background-color: #a7e245;
+  margin-top: 5px;
+  transition: width 0.3s ease-out;
+}
+
+.sign-in-page .switcher.is-active .underline,
+.sign-in-page .form-wrapper.is-active ~ .switcher .underline {
+  width: 100%;
 }
 
 .sign-in-page .form {
