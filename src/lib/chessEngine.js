@@ -1,21 +1,25 @@
-import Stockfish from 'stockfish'
-
 export function createEngine() {
-  const engine = Stockfish()
+
+  const worker = new Worker('https://cdn.jsdelivr.net/npm/stockfish@16.1.0/src/stockfish.js')
+
   let onMessage = null
 
-  engine.onmessage = (e) => {
-    const line = typeof e === 'string' ? e : e?.data
-    if (onMessage) onMessage(line)
+  worker.onmessage = (e) => {
+    const line = typeof e.data === 'string' ? e.data : String(e.data)
+    onMessage?.(line)
   }
 
   function send(cmd) {
-    engine.postMessage(cmd)
+    worker.postMessage(cmd)
   }
 
   function setMessageHandler(fn) {
     onMessage = fn
   }
 
-  return { send, setMessageHandler, terminate: () => engine.terminate?.() }
+  function terminate() {
+    worker.terminate()
+  }
+
+  return { send, setMessageHandler, terminate }
 }
