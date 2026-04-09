@@ -2,14 +2,11 @@ import { supabaseAdmin } from '../_lib/supabaseAdmin.js'
 import { requireUser } from '../_lib/requireUser.js'
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-
   try {
     const user = await requireUser(req)
     const admin = supabaseAdmin()
-
-    const { sessionId, role, content } = req.body || {}
-    if (!sessionId || !role || !content) return res.status(400).json({ error: 'Missing sessionId/role/content' })
+    const sessionId = req.method === 'GET' ? req.query?.sessionId : req.body?.sessionId
+    if (!sessionId) return res.status(400).json({ error: 'Missing sessionId' })
 
     // Map auth user to app_users.id using stable supabase_user_id
     const { data: appUser, error: appUserErr } = await admin
@@ -38,14 +35,35 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Forbidden' })
     }
 
-    const { data, error } = await admin
-      .from('chat_messages')
-      .insert({ session_id: sessionId, role, content })
-      .select()
-      .single()
+    if (req.method === 'GET') {
+      const limit = Math.min(Number(req.query?.limit) || 200, 500)
+      const { data, error } = await admin
+        .from('chat_messages')
+        .select('id, session_id, role, content, created_at')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true })
+        .limit(limit)
 
-    if (error) return res.status(500).json({ error: error.message })
-    return res.status(200).json({ message: data })
+      if (error) return res.status(500).json({ error: error.message })
+      return res.status(200).json({ messages: data || [] })
+    }
+
+    if (req.method === 'POST') {
+      const { role, content } = req.body || {}
+      if (!role || !content) return res.status(400).json({ error: 'Missing role/content' })
+      if (!['user', 'assistant'].includes(role)) return res.status(400).json({ error: 'Invalid role' })
+
+      const { data, error } = await admin
+        .from('chat_messages')
+        .insert({ session_id: sessionId, role, content })
+        .select('id, session_id, role, content, created_at')
+        .single()
+
+      if (error) return res.status(500).json({ error: error.message })
+      return res.status(200).json({ message: data })
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' })
   } catch (e) {
     if (e.message === 'Missing Authorization Bearer token' || e.message === 'Invalid token') {
       return res.status(401).json({ error: 'Unauthorized' })

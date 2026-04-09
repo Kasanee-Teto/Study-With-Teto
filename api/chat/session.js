@@ -2,8 +2,6 @@ import { supabaseAdmin } from '../_lib/supabaseAdmin.js'
 import { requireUser } from '../_lib/requireUser.js'
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-
   try {
     const user = await requireUser(req)
     const admin = supabaseAdmin()
@@ -22,15 +20,50 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Database error' })
     }
 
-    const { title } = req.body || {}
-    const { data, error } = await admin
-      .from('chat_sessions')
-      .insert({ user_id: appUser.id, title: title || 'New chat' })
-      .select()
-      .single()
+    if (req.method === 'GET') {
+      const limit = Math.min(Number(req.query?.limit) || 50, 100)
+      const { data, error } = await admin
+        .from('chat_sessions')
+        .select('id, title, created_at')
+        .eq('user_id', appUser.id)
+        .order('created_at', { ascending: false })
+        .limit(limit)
 
-    if (error) return res.status(500).json({ error: error.message })
-    return res.status(200).json({ session: data })
+      if (error) return res.status(500).json({ error: error.message })
+      return res.status(200).json({ sessions: data || [] })
+    }
+
+    if (req.method === 'POST') {
+      const { title } = req.body || {}
+      const { data, error } = await admin
+        .from('chat_sessions')
+        .insert({ user_id: appUser.id, title: title || 'New chat' })
+        .select('id, title, created_at')
+        .single()
+
+      if (error) return res.status(500).json({ error: error.message })
+      return res.status(200).json({ session: data })
+    }
+
+    if (req.method === 'PATCH') {
+      const { sessionId, title } = req.body || {}
+      if (!sessionId || typeof title !== 'string') {
+        return res.status(400).json({ error: 'Missing sessionId/title' })
+      }
+
+      const { data, error } = await admin
+        .from('chat_sessions')
+        .update({ title: title.trim() || 'New chat' })
+        .eq('id', sessionId)
+        .eq('user_id', appUser.id)
+        .select('id, title, created_at')
+        .single()
+
+      if (error) return res.status(500).json({ error: error.message })
+      return res.status(200).json({ session: data })
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' })
   } catch (e) {
     if (e.message === 'Missing Authorization Bearer token' || e.message === 'Invalid token') {
       return res.status(401).json({ error: 'Unauthorized' })

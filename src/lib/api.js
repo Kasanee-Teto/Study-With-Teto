@@ -52,6 +52,56 @@ export async function postJSON(path, body) {
   return data
 }
 
+export async function getJSON(path, params = {}) {
+  const headers = await authHeaders()
+  const query = new URLSearchParams(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null)
+  ).toString()
+  const url = query ? `${base}${path}?${query}` : `${base}${path}`
+  const r = await fetch(url, { headers })
+
+  let data
+  try {
+    data = await r.json()
+  } catch {
+    data = {}
+  }
+
+  if (!r.ok) {
+    const err = new Error(data?.error || `HTTP ${r.status}`)
+    err.status = r.status
+    err.detail = data?.detail
+    throw err
+  }
+
+  return data
+}
+
+export async function patchJSON(path, body) {
+  const headers = await authHeaders()
+  const r = await fetch(`${base}${path}`, {
+    method: 'PATCH',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {})
+  })
+
+  let data
+  try {
+    data = await r.json()
+  } catch {
+    data = {}
+  }
+
+  if (!r.ok) {
+    const err = new Error(data?.error || `HTTP ${r.status}`)
+    err.status = r.status
+    err.detail = data?.detail
+    throw err
+  }
+
+  return data
+}
+
 export async function callAI({ mode, messages, model }) {
   // AI endpoint can be public server-side, but keep auth anyway for rate-limit & logging
   const data = await postJSON('/api/ai', { mode, messages, model })

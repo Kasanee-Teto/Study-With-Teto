@@ -1,3 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-main: #131314;
+  --color-bg-panel: #1e1e20;
+  --color-bg-panel2: #1c1c1e;
+  --color-text-primary: #e3e3e3;
+  --color-text-secondary: #9ca3af;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+}
+
+@layer components {
+  .chat-panel {
+    @apply h-full min-h-[100svh];
+  }
+
+  .chat-subtle {
+    @apply text-xs text-text-secondary;
+  }
+
+  .chat-btn {
+    @apply rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-sm font-medium text-text-primary transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .chat-icon-btn {
+    @apply rounded-md border border-white/10 bg-white/5 px-2 py-1 text-sm text-text-primary;
+  }
+
+  .chat-input {
+    @apply rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-secondary focus:border-white/20;
+  }
+
+  .chat-session-item {
+    @apply w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-left text-sm text-text-primary transition hover:bg-white/10;
+  }
+
+  .chat-session-item-active {
+    @apply border-white/20 bg-white/15;
+  }
+
+  .chat-bubble {
+    @apply max-w-[80%] rounded-2xl px-4 py-3;
+  }
+
+  .chat-bubble-user {
+    @apply rounded-br-sm bg-indigo-500/80;
+  }
+
+  .chat-bubble-assistant {
+    @apply rounded-bl-sm border border-white/10 bg-bg-panel;
+  }
+
+  .chat-meta-item {
+    @apply rounded-xl border border-white/10 bg-white/5 p-3;
+  }
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -55,11 +112,11 @@ body {
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+  border-inline: 0;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
