@@ -1,25 +1,23 @@
 export function createEngine() {
+  const wasmSupported =
+    typeof WebAssembly === 'object' &&
+    typeof WebAssembly.validate === 'function' &&
+    WebAssembly.validate(Uint8Array.of(0, 97, 115, 109, 1, 0, 0, 0))
 
-  const worker = new Worker('https://cdn.jsdelivr.net/npm/stockfish@16.1.0/src/stockfish.js')
+  const worker = new Worker(wasmSupported ? '/stockfish.wasm.js' : '/stockfish.js')
 
   let onMessage = null
+  worker.onmessage = (e) => onMessage?.(String(e.data))
 
-  worker.onmessage = (e) => {
-    const line = typeof e.data === 'string' ? e.data : String(e.data)
-    onMessage?.(line)
+  return {
+    send(cmd) {
+      worker.postMessage(cmd)
+    },
+    setMessageHandler(fn) {
+      onMessage = fn
+    },
+    terminate() {
+      worker.terminate()
+    }
   }
-
-  function send(cmd) {
-    worker.postMessage(cmd)
-  }
-
-  function setMessageHandler(fn) {
-    onMessage = fn
-  }
-
-  function terminate() {
-    worker.terminate()
-  }
-
-  return { send, setMessageHandler, terminate }
 }
