@@ -17,16 +17,29 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard" style={{ padding: 24 }}>
-      <h2>Dashboard</h2>
-      <div>Logged in as: {user?.user_metadata?.user_name || user?.email}</div>
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <h2>Dashboard</h2>
+        <div className="user-info">Logged in as: {user?.user_metadata?.user_name || user?.email}</div>
+      </div>
 
-      <ul>
-        <li><Link to="/chat">Chat with Teto</Link></li>
-        <li><Link to="/chess">Play Chess vs Teto</Link></li>
-      </ul>
+      <div className="dashboard-cards">
+        <Link to="/chat" className="card card-chat">
+          <div className="card-image"></div>
+          <div className="card-content">
+            <h3>Chat with Teto</h3>
+          </div>
+        </Link>
 
-      <button onClick={logout}>Logout</button>
+        <Link to="/chess" className="card card-chess">
+          <div className="card-image"></div>
+          <div className="card-content">
+            <h3>Play Chess vs Teto</h3>
+          </div>
+        </Link>
+      </div>
+
+      <button className="logout-btn" onClick={logout}>Logout</button>
     </div>
   )
 }
