@@ -47,8 +47,11 @@ export default function ChatMain({
         {messages.length === 0 && (
           <p className="chat-subtle">Start the conversation — previous messages will be reused as memory.</p>
         )}
-        {messages.map((message) => (
-          <MessageBubble key={message.id || `${message.role}-${message.created_at}`} message={message} />
+        {messages.map((message, index) => (
+          <MessageBubble
+            key={message.id || `${message.role}-${message.created_at || 'temp'}-${index}`}
+            message={message}
+          />
         ))}
         {busy && <p className="chat-subtle">Teto is thinking...</p>}
       </div>

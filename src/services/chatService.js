@@ -23,7 +23,7 @@ export async function listMessages(sessionId, limit = 200) {
   return data.messages || []
 }
 
-export async function sendMessage(sessionId, content) {
+export async function sendMessage(sessionId, content, currentMessages = []) {
   const trimmed = content.trim()
   if (!trimmed) throw new Error('Message cannot be empty')
 
@@ -33,11 +33,18 @@ export async function sendMessage(sessionId, content) {
     content: trimmed
   })
 
-  const contextMessages = await listMessages(sessionId, CONTEXT_LIMIT)
-  const promptMessages = contextMessages.map(({ role, content: body }) => ({ role, content: body }))
+  const fromState = Array.isArray(currentMessages)
+    ? currentMessages.map(({ role, content: body }) => ({ role, content: body }))
+    : []
+  const promptMessages = [...fromState]
+  const lastMessage = promptMessages[promptMessages.length - 1]
+  if (!(lastMessage?.role === 'user' && lastMessage?.content === userMessage.content)) {
+    promptMessages.push({ role: 'user', content: userMessage.content })
+  }
+  const trimmedPromptMessages = promptMessages.slice(-CONTEXT_LIMIT)
 
   try {
-    const reply = await generateReply({ sessionId, messages: promptMessages })
+    const reply = await generateReply({ sessionId, messages: trimmedPromptMessages })
     const { message: assistantMessage } = await postJSON('/api/chat/message', {
       sessionId,
       role: 'assistant',

@@ -1,6 +1,8 @@
 import { supabaseAdmin } from '../_lib/supabaseAdmin.js'
 import { requireUser } from '../_lib/requireUser.js'
 
+const DEFAULT_SESSION_TITLE = 'New chat'
+
 export default async function handler(req, res) {
   try {
     const user = await requireUser(req)
@@ -21,7 +23,8 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      const limit = Math.min(Number(req.query?.limit) || 50, 100)
+      const rawLimit = parseInt(req.query?.limit, 10)
+      const limit = Math.min(Number.isNaN(rawLimit) ? 50 : Math.max(rawLimit, 1), 100)
       const { data, error } = await admin
         .from('chat_sessions')
         .select('id, title, created_at')
@@ -37,7 +40,7 @@ export default async function handler(req, res) {
       const { title } = req.body || {}
       const { data, error } = await admin
         .from('chat_sessions')
-        .insert({ user_id: appUser.id, title: title || 'New chat' })
+        .insert({ user_id: appUser.id, title: title || DEFAULT_SESSION_TITLE })
         .select('id, title, created_at')
         .single()
 
@@ -53,7 +56,7 @@ export default async function handler(req, res) {
 
       const { data, error } = await admin
         .from('chat_sessions')
-        .update({ title: title.trim() || 'New chat' })
+        .update({ title: title.trim() || DEFAULT_SESSION_TITLE })
         .eq('id', sessionId)
         .eq('user_id', appUser.id)
         .select('id, title, created_at')

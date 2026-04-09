@@ -1,6 +1,8 @@
 import { supabaseAdmin } from '../_lib/supabaseAdmin.js'
 import { requireUser } from '../_lib/requireUser.js'
 
+const CHAT_MESSAGE_ROLES = ['user', 'assistant']
+
 export default async function handler(req, res) {
   try {
     const user = await requireUser(req)
@@ -36,7 +38,8 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      const limit = Math.min(Number(req.query?.limit) || 200, 500)
+      const rawLimit = parseInt(req.query?.limit, 10)
+      const limit = Math.min(Number.isNaN(rawLimit) ? 200 : Math.max(rawLimit, 1), 500)
       const { data, error } = await admin
         .from('chat_messages')
         .select('id, session_id, role, content, created_at')
@@ -51,7 +54,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const { role, content } = req.body || {}
       if (!role || !content) return res.status(400).json({ error: 'Missing role/content' })
-      if (!['user', 'assistant'].includes(role)) return res.status(400).json({ error: 'Invalid role' })
+      if (!CHAT_MESSAGE_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role' })
 
       const { data, error } = await admin
         .from('chat_messages')

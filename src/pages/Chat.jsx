@@ -81,7 +81,6 @@ export default function Chat() {
       const targetId =
         preferredId ||
         savedSessionId ||
-        currentSessionId ||
         nextSessions[0]?.id
 
       const stillExists = nextSessions.some((item) => item.id === targetId)
@@ -94,11 +93,14 @@ export default function Chat() {
     } finally {
       setSessionsLoading(false)
     }
-  }, [currentSessionId])
+  }, [])
 
   useEffect(() => {
     if (!authReady || authError) return
-    void refreshSessions()
+    refreshSessions().catch((refreshError) => {
+      console.error(refreshError)
+      setError(refreshError.message || 'Failed to load sessions')
+    })
   }, [authReady, authError, refreshSessions])
 
   useEffect(() => {
@@ -157,7 +159,7 @@ export default function Chat() {
     }))
 
     try {
-      const { userMessage, assistantMessage } = await sendMessage(currentSessionId, messageText)
+      const { userMessage, assistantMessage } = await sendMessage(currentSessionId, messageText, currentMessages)
       setMessagesBySessionId((prev) => {
         const withoutTemp = (prev[currentSessionId] || []).filter((item) => item.id !== tempUserMessage.id)
         return {
@@ -165,7 +167,6 @@ export default function Chat() {
           [currentSessionId]: [...withoutTemp, userMessage, assistantMessage]
         }
       })
-      await refreshSessions(currentSessionId)
     } catch (sendErr) {
       console.error(sendErr)
       setMessagesBySessionId((prev) => {
