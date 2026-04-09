@@ -1,16 +1,16 @@
-body {
-	margin: 0;
-	font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
-	background-image: url(../assets/teto1.png);
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-attachment: fixed;
-	background-size: cover;
-  overflow: hidden;
-}
-
 .sign-up-page * {
   box-sizing: border-box;
+}
+
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(../assets/teto1.png) no-repeat center center fixed;
+  background-size: cover;
+  z-index: -1;
 }
 
 .sign-up-hightlight{
@@ -31,18 +31,7 @@ body {
   background-size: 100% 100%;
   background-position: center;
   background-attachment: fixed;
-  padding: 24px;
-}
-
-.sign-up-page {
-  min-height: 100vh;
-  margin: 0;
-  font-family: Roboto, -apple-system, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto.jpg);
-  background-size: 100% 100%;
-  background-position: center;
-  background-attachment: fixed;
-  padding: 24px;
+  padding: 30px;
 }
 
 .sign-up-page .forms-section {

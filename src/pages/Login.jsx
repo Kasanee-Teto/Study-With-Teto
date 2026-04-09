@@ -87,7 +87,7 @@ export default function Login() {
     return (
         <section className="sign-in-page forms-section">
             <h1 className="section-title">Welcome To Teto Chatbot</h1>
-
+            <div className="background"></div>
             <div className="forms">
                 {/* Tab buttons - always visible */}
                 <div className="button-tabs">

@@ -57,7 +57,7 @@ export default function SignUpPage() {
     return (
         <section className="sign-up-page forms-section">
             <h1 className="section-title">Welcome To Teto Chatbot</h1>
-
+            <div className="background"></div>
             <div className="sign-up-hightlight">Sign up</div>
             
             <div className="forms">

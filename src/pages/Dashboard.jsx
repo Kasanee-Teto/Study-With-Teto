@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useEffect, useState } from 'react'
+import './dashboard.css'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
@@ -16,7 +17,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="dashboard" style={{ padding: 24 }}>
       <h2>Dashboard</h2>
       <div>Logged in as: {user?.user_metadata?.user_name || user?.email}</div>
 
