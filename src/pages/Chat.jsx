@@ -1,105 +1,247 @@
-import { useEffect, useMemo, useState } from 'react'
-import { postJSON, callAI } from '../lib/api'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { supabase } from '../lib/supabaseClient'
+import { getOrCreateAppUser } from '../services/userService'
+import {
+  createSession,
+  listMessages,
+  listSessions,
+  sendMessage
+} from '../services/chatService'
+import LeftSidebar from './chat/LeftSidebar'
+import ChatMain from './chat/ChatMain'
+import RightPanel from './chat/RightPanel'
+import MobileDrawers from './chat/MobileDrawers'
 
+const LAST_SESSION_STORAGE_KEY = 'chat:lastSessionId'
+
+/**
+ * How to extend:
+ * - Add right-panel setting: extend RightPanel and include value in sendMessage payload.
+ * - Change theme tokens: update @theme colors in src/index.css.
+ * - Add message pagination: update listMessages(sessionId, limit) and load more on scroll.
+ * - Add streaming responses: replace aiService.generateReply with stream API and append chunks.
+ */
 export default function Chat() {
-  const [sessionId, setSessionId] = useState(null)
-  const [messages, setMessages] = useState([]) // {role, content}
+  const [appUser, setAppUser] = useState(null)
+  const [authReady, setAuthReady] = useState(false)
+  const [authError, setAuthError] = useState(null)
+  const [sessions, setSessions] = useState([])
+  const [sessionsLoading, setSessionsLoading] = useState(true)
+  const [currentSessionId, setCurrentSessionId] = useState(null)
+  const [messagesBySessionId, setMessagesBySessionId] = useState({})
+  const [messagesLoading, setMessagesLoading] = useState(false)
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
-  const [sendError, setSendError] = useState(null)
+  const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
+  const [leftOpen, setLeftOpen] = useState(false)
+  const [rightOpen, setRightOpen] = useState(false)
 
-  const canSend = useMemo(() => input.trim().length > 0 && !busy && sessionId, [input, busy, sessionId])
+  const currentMessages = useMemo(
+    () => messagesBySessionId[currentSessionId] || [],
+    [messagesBySessionId, currentSessionId]
+  )
+  const activeSession = sessions.find((session) => session.id === currentSessionId) || null
 
   useEffect(() => {
-    async function init() {
-      // ensure app_user exists
-      await postJSON('/api/user/upsert')
-
-      // create session
-      const { session } = await postJSON('/api/chat/session', { title: 'Chat with Teto' })
-      setSessionId(session.id)
+    async function bootstrap() {
+      try {
+        const { data, error: supabaseError } = await supabase.auth.getUser()
+        if (supabaseError || !data?.user) {
+          throw new Error('You are signed out. Please sign in to use chat.')
+        }
+        const user = await getOrCreateAppUser()
+        setAppUser(user)
+      } catch (bootstrapError) {
+        console.error(bootstrapError)
+        setAuthError(bootstrapError.message || 'Failed to initialize chat')
+      } finally {
+        setAuthReady(true)
+      }
     }
-    init().catch(err => {
-      console.error(err)
-      alert(err.message || String(err))
-    })
+
+    bootstrap()
   }, [])
 
-  async function send() {
-    if (!canSend) return
-    const text = input.trim()
-    setInput('')
-    setBusy(true)
-    setSendError(null)
+  const refreshSessions = useCallback(async (preferredId) => {
+    setSessionsLoading(true)
+    try {
+      const nextSessions = await listSessions()
+      setSessions(nextSessions)
 
-    const userMsg = { role: 'user', content: text }
-    const next = [...messages, userMsg]
-    setMessages(next)
+      if (nextSessions.length === 0) {
+        const session = await createSession('New chat')
+        setSessions([session])
+        setCurrentSessionId(session.id)
+        localStorage.setItem(LAST_SESSION_STORAGE_KEY, session.id)
+        return
+      }
+
+      const savedSessionId = localStorage.getItem(LAST_SESSION_STORAGE_KEY)
+      const targetId =
+        preferredId ||
+        savedSessionId ||
+        nextSessions[0]?.id
+
+      const stillExists = nextSessions.some((item) => item.id === targetId)
+      const resolvedSessionId = stillExists ? targetId : nextSessions[0]?.id
+      setCurrentSessionId(resolvedSessionId)
+      localStorage.setItem(LAST_SESSION_STORAGE_KEY, resolvedSessionId)
+    } catch (loadError) {
+      console.error(loadError)
+      setError(loadError.message || 'Failed to load sessions')
+    } finally {
+      setSessionsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!authReady || authError) return
+    refreshSessions().catch((refreshError) => {
+      console.error(refreshError)
+      setError(refreshError.message || 'Failed to load sessions')
+    })
+  }, [authReady, authError, refreshSessions])
+
+  useEffect(() => {
+    if (!currentSessionId) return
+    if (messagesBySessionId[currentSessionId]) return
+
+    async function loadSessionMessages() {
+      setMessagesLoading(true)
+      try {
+        const messages = await listMessages(currentSessionId)
+        setMessagesBySessionId((prev) => ({ ...prev, [currentSessionId]: messages }))
+        localStorage.setItem(LAST_SESSION_STORAGE_KEY, currentSessionId)
+      } catch (loadError) {
+        console.error(loadError)
+        setError(loadError.message || 'Failed to load messages')
+      } finally {
+        setMessagesLoading(false)
+      }
+    }
+
+    loadSessionMessages()
+  }, [currentSessionId, messagesBySessionId])
+
+  async function handleCreateSession() {
+    setError(null)
+    try {
+      const session = await createSession('New chat')
+      setSessions((prev) => [session, ...prev])
+      setCurrentSessionId(session.id)
+      setMessagesBySessionId((prev) => ({ ...prev, [session.id]: [] }))
+      localStorage.setItem(LAST_SESSION_STORAGE_KEY, session.id)
+      setLeftOpen(false)
+    } catch (createError) {
+      console.error(createError)
+      setError(createError.message || 'Failed to create chat session')
+    }
+  }
+
+  async function handleSend() {
+    if (!currentSessionId || busy || !input.trim() || authError) return
+    const messageText = input.trim()
+    setInput('')
+    setError(null)
+    setBusy(true)
+
+    const tempUserMessage = {
+      id: `temp-user-${Date.now()}`,
+      role: 'user',
+      content: messageText,
+      created_at: new Date().toISOString()
+    }
+
+    setMessagesBySessionId((prev) => ({
+      ...prev,
+      [currentSessionId]: [...(prev[currentSessionId] || []), tempUserMessage]
+    }))
 
     try {
-      await postJSON('/api/chat/message', { sessionId, role: 'user', content: text })
-
-      const reply = await callAI({ mode: 'chat', messages: next })
-      const next2 = [...next, { role: 'assistant', content: reply }]
-      setMessages(next2)
-
-      await postJSON('/api/chat/message', { sessionId, role: 'assistant', content: reply })
-    } catch (e) {
-      console.error(e)
-      // Revert the optimistic user message so chat state stays consistent
-      setMessages(messages)
-      setInput(text)
-
-      // Surface a specific, actionable error message
-      let errorMessage = e.message || 'Failed to send message'
-      if (e.status === 401) {
-        errorMessage = 'Session expired or unauthorized. Please sign in again.'
-      } else if (e.status === 429) {
-        errorMessage = 'AI rate limit reached. Please wait a moment and try again.'
-      } else if (e.status === 400) {
-        errorMessage = `AI configuration error: ${e.detail || 'check model name'}.`
-      } else if (e.status === 500 && e.message?.includes('misconfigured')) {
-        errorMessage = 'AI service is not configured on the server. Contact the administrator.'
-      }
-      setSendError(errorMessage)
+      const { userMessage, assistantMessage } = await sendMessage(currentSessionId, messageText, currentMessages)
+      setMessagesBySessionId((prev) => {
+        const withoutTemp = (prev[currentSessionId] || []).filter((item) => item.id !== tempUserMessage.id)
+        return {
+          ...prev,
+          [currentSessionId]: [...withoutTemp, userMessage, assistantMessage]
+        }
+      })
+    } catch (sendErr) {
+      console.error(sendErr)
+      setMessagesBySessionId((prev) => {
+        const withoutTemp = (prev[currentSessionId] || []).filter((item) => item.id !== tempUserMessage.id)
+        return {
+          ...prev,
+          [currentSessionId]: sendErr.userMessage
+            ? [...withoutTemp, sendErr.userMessage]
+            : withoutTemp
+        }
+      })
+      setError(sendErr.message || 'Failed to generate assistant response')
     } finally {
       setBusy(false)
     }
   }
 
+  const leftSidebar = (
+    <LeftSidebar
+      sessions={sessions}
+      activeSessionId={currentSessionId}
+      search={search}
+      setSearch={setSearch}
+      onCreateSession={handleCreateSession}
+      onSelectSession={(id) => {
+        setCurrentSessionId(id)
+        localStorage.setItem(LAST_SESSION_STORAGE_KEY, id)
+        setLeftOpen(false)
+      }}
+      profileName={appUser?.display_name || appUser?.email || 'Unknown user'}
+      loading={sessionsLoading}
+    />
+  )
+
+  const rightPanel = (
+    <RightPanel
+      activeSession={activeSession}
+      messageCount={currentMessages.length}
+    />
+  )
+
+  const blocked = !!authError || !currentSessionId
+  const title = activeSession?.title || 'New chat'
+  const renderMessages = useMemo(
+    () => (messagesLoading && currentMessages.length === 0 ? [] : currentMessages),
+    [messagesLoading, currentMessages]
+  )
+
   return (
-    <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-      <h2>Chat with Teto</h2>
-
-      {!sessionId && <div>Preparing session...</div>}
-
-      <div style={{ border: '1px solid #ddd', padding: 12, minHeight: 300, marginTop: 12 }}>
-        {messages.map((m, i) => (
-          <div key={i} style={{ marginBottom: 10 }}>
-            <b>{m.role}:</b> {m.content}
-          </div>
-        ))}
-        {busy && <div><i>Teto is thinking...</i></div>}
-      </div>
-
-      {sendError && (
-        <div style={{ marginTop: 8, color: '#c00', fontSize: 14 }}>
-          ⚠️ {sendError}
-        </div>
-      )}
-
-      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') send() }}
-          placeholder="Ask Teto..."
-          style={{ flex: 1, padding: 10 }}
+    <div className="min-h-[100svh] bg-bg-main text-text-primary">
+      <div className="grid min-h-[100svh] grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
+        <div className="hidden md:block">{leftSidebar}</div>
+        <ChatMain
+          title={title}
+          messages={renderMessages}
+          input={input}
+          onInputChange={setInput}
+          onSend={handleSend}
+          busy={busy || messagesLoading}
+          error={authError || error}
+          disabled={blocked}
+          onOpenLeftDrawer={() => setLeftOpen(true)}
+          onOpenRightDrawer={() => setRightOpen(true)}
         />
-        <button onClick={send} disabled={!canSend}>
-          Send
-        </button>
+        <div className="hidden lg:block">{rightPanel}</div>
       </div>
+
+      <MobileDrawers
+        leftOpen={leftOpen}
+        rightOpen={rightOpen}
+        closeLeft={() => setLeftOpen(false)}
+        closeRight={() => setRightOpen(false)}
+        leftContent={leftSidebar}
+        rightContent={rightPanel}
+      />
     </div>
   )
 }
