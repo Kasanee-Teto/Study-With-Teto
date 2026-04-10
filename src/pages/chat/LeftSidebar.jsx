@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"   
+
 export default function LeftSidebar({
   sessions,
   activeSessionId,
@@ -14,7 +16,15 @@ export default function LeftSidebar({
 
   return (
     <aside className="chat-panel border-r border-white/10 bg-bg-panel">
+
       <div className="border-b border-white/10 p-1">
+        <Link to="/dashboard" >
+          <img 
+            className="w-11 h-11 object-cover rounded-full border-1 border-white/80 padding-1 mx-auto mb-4" 
+            src="src/assets/teto-teach-profile.jpeg" 
+            alt="Teto Profile Image"
+          />
+        </Link>
         <button className="chat-btn w-full" onClick={onCreateSession}>
           + New chat
         </button>
@@ -26,7 +36,7 @@ export default function LeftSidebar({
         />
       </div>
 
-      <div className="h-[calc(100svh-170px)] overflow-y-auto p-3">
+      <div className="h-[calc(100svh-235px)] overflow-y-auto p-3">
         {loading && <p className="chat-subtle px-2 py-1">Loading sessions...</p>}
         {!loading && filtered.length === 0 && <p className="chat-subtle px-2 py-1">No chats yet.</p>}
         <ul className="space-y-2">

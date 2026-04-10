@@ -34,12 +34,17 @@ export default function ChatMain({
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-bg-main overflow-hidden">
-      <header className="shrink-0 flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <button className="chat-icon-btn md:hidden" onClick={onOpenLeftDrawer}>☰</button>
-        <div>
-          <h2 className="text-base font-semibold text-text-primary">{title}</h2>
-          <p className="chat-subtle">Persistent memory enabled per session</p>
-        </div>
+      <header className="shrink-0 flex justify-center border-b border-white/10 px-4 py-3">
+        <button className="chat-icon-btn md:hidden" onClick={onOpenLeftDrawer}>☰</button>  
+          <div className="flex flex-col items-center gap-2 mx-4 text-center">
+            <img 
+              className="w-11 h-11 object-cover rounded-full border-1 border-white/80" 
+              src="src/assets/teto-teach-profile.jpeg" 
+              alt="Teto Profile Image"
+            />
+            <h2 className="text-base font-semibold text-text-primary">{title}</h2>
+            <p className="chat-subtle text-xs">Teto will help you with your studies</p>
+          </div>
         <button className="chat-icon-btn lg:hidden" onClick={onOpenRightDrawer}>⚙</button>
       </header>
 
