@@ -251,7 +251,7 @@ export default function ChessPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <h2>Chess vs Teto</h2>
+      <h2>Chess vs Teto<img src="/src/assets/chess2.png" alt="Chess" style={{float: 'right', marginLeft: 8, width: 50, height: 50 }} /></h2>
 
       <div>
         Status: {status} {busy ? '(thinking...)' : ''}

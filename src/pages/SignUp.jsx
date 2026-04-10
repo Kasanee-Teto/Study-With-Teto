@@ -55,7 +55,7 @@ export default function SignUpPage() {
     };
 
     return (
-        <section className="sign-up-page min-h-screen flex flex-col justify-center items-center font-sans bg-cover bg-center bg-fixed px-7 py-12 md:px-5 md:py-10">
+        <section className="sign-up-page min-h-screen flex flex-col justify-center items-center font-sans bg-cover bg-center bg-fixed px-7 py-12 md:px-1 md:py-1">
             <h1 className="text-4xl font-sans tracking-wide text-white text-center mb-12">Welcome To Teto Chatbot</h1>
             <div className="text-lime-400 font-sans flex justify-center mb-4">Sign up</div>
             

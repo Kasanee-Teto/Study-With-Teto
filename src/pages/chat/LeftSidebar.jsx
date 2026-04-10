@@ -14,7 +14,7 @@ export default function LeftSidebar({
 
   return (
     <aside className="chat-panel border-r border-white/10 bg-bg-panel">
-      <div className="border-b border-white/10 p-4">
+      <div className="border-b border-white/10 p-1">
         <button className="chat-btn w-full" onClick={onCreateSession}>
           + New chat
         </button>
