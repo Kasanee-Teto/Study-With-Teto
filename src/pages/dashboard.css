@@ -44,6 +44,73 @@
   background-position: center;
 }
 
+/* ===== Top Nav tambahan (tanpa ubah background yang lain) ===== */
+.topnav {
+  width: min(1100px, 96vw);
+  min-height: 64px;
+  border-radius: 18px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: center;
+  gap: 12px;
+
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 170, 210, 0.35);
+  box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
+  backdrop-filter: blur(6px);
+}
+
+.topnav-left {
+  padding-left: 64px; /* biar tidak ketiban hamburger absolute */
+  line-height: 1.1;
+}
+
+.topnav-title {
+  font-weight: 900;
+  font-size: 16px;
+  color: rgba(17, 24, 39, 0.82);
+}
+
+.topnav-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.6);
+}
+
+.topnav-center {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+
+.topnav-logo-text {
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: rgba(17, 24, 39, 0.78);
+  font-size: 13px;
+}
+
+.topnav-right {
+  text-align: right;
+  padding-right: 6px;
+}
+
+.topnav-date {
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.65);
+}
+
+.topnav-time {
+  font-size: 14px;
+  font-weight: 900;
+  color: rgba(17, 24, 39, 0.8);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Hamburger button */
 .hamburger-btn {
   width: 44px;

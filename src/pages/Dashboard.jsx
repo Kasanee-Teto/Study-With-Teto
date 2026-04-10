@@ -7,13 +7,16 @@ import feedbackIcon from '../assets/feedback.png'
 import settingsIcon from '../assets/settings.png'
 import logoutIcon from '../assets/logout.png'
 
-// optional: avatar default (kalau kamu mau)
-// import avatarDefault from '../assets/avatar.png'
+// Kalau kamu punya logo gambar, aktifkan ini:
+// import tetoLogo from '../assets/teto-logo.png'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
+
+  // Jam real-time
+  const [now, setNow] = useState(new Date())
 
   const [todos, setTodos] = useState([
     { id: crypto.randomUUID(), text: '', done: false },
@@ -34,6 +37,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
+  }, [])
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(t)
   }, [])
 
   async function logout() {
@@ -96,7 +104,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard relative min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
-      {/* Hamburger tetap pojok kiri atas (ini SATU-SATUNYA X) */}
+      {/* Hamburger tetap pojok kiri atas (posisi semula) */}
       <div className="absolute top-5 left-5 z-[80]">
         <button
           className="hamburger-btn"
@@ -104,9 +112,46 @@ export default function Dashboard() {
           aria-expanded={sidebarOpen}
           aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
         >
-          <span className="hamburger-icon">{sidebarOpen ? '✕' : '☰'}</span>
+          <span className="hamburger-icon">{sidebarOpen ? '×' : '☰'}</span>
         </button>
       </div>
+
+      {/* TOP NAV (kiri: Dashboard+Hi, tengah: logo, kanan: tanggal+jam AM/PM) */}
+      <header className="topnav">
+        <div className="topnav-left">
+          <div className="topnav-title">Dashboard</div>
+          <div className="topnav-subtitle">Hi, {username}</div>
+        </div>
+
+        <div className="topnav-center">
+          <div className="topnav-logo-text">KASANE TETO</div>
+
+          {/*
+          <img className="topnav-logo-img" src={tetoLogo} alt="Kasane Teto" />
+          */}
+        </div>
+
+        <div className="topnav-right">
+          <div className="topnav-date">
+            {now.toLocaleDateString('id-ID', {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </div>
+
+          {/* AM/PM pakai locale en-US biar muncul AM/PM */}
+          <div className="topnav-time">
+            {now.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: true,
+            })}
+          </div>
+        </div>
+      </header>
 
       {/* Sidebar + Overlay */}
       <div
@@ -116,11 +161,9 @@ export default function Dashboard() {
         }}
       >
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-          {/* Header lebih tinggi biar menu turun */}
           <div className="sidebar-header">
             <div className="sidebar-profile">
               <div className="sidebar-avatar" aria-hidden="true">
-                {/* Kalau kamu punya avatar beneran, ganti jadi <img src="..." /> */}
                 <span>{(username || 'U').slice(0, 1).toUpperCase()}</span>
               </div>
 
@@ -168,12 +211,6 @@ export default function Dashboard() {
             </div>
           </div>
         </aside>
-      </div>
-
-      {/* Header */}
-      <div className="dashboard-header text-center mb-10 bg-white/85 backdrop-blur px-7 py-5 rounded-2xl shadow-md border border-pink-100">
-        <h2 className="text-3xl font-extrabold !text-black">Dashboard</h2>
-        <div className="text-black text-sm">Hi, {username}</div>
       </div>
 
       {/* Main Layout */}
