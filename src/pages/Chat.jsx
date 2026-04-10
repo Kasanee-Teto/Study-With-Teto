@@ -215,10 +215,12 @@ export default function Chat() {
     [messagesLoading, currentMessages]
   )
 
-  return (
-    <div className="min-h-[100svh] bg-bg-main text-text-primary">
-      <div className="grid min-h-[100svh] grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
-        <div className="hidden md:block">{leftSidebar}</div>
+return (
+  <div className="h-[100dvh] overflow-hidden bg-bg-main text-text-primary">
+    <div className="grid h-full min-h-0 grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
+      <div className="hidden md:block min-h-0 overflow-hidden">{leftSidebar}</div>
+
+      <div className="min-h-0 overflow-hidden">
         <ChatMain
           title={title}
           messages={renderMessages}
@@ -231,17 +233,19 @@ export default function Chat() {
           onOpenLeftDrawer={() => setLeftOpen(true)}
           onOpenRightDrawer={() => setRightOpen(true)}
         />
-        <div className="hidden lg:block">{rightPanel}</div>
       </div>
 
-      <MobileDrawers
-        leftOpen={leftOpen}
-        rightOpen={rightOpen}
-        closeLeft={() => setLeftOpen(false)}
-        closeRight={() => setRightOpen(false)}
-        leftContent={leftSidebar}
-        rightContent={rightPanel}
-      />
+      <div className="hidden lg:block min-h-0 overflow-hidden">{rightPanel}</div>
     </div>
-  )
+
+    <MobileDrawers
+      leftOpen={leftOpen}
+      rightOpen={rightOpen}
+      closeLeft={() => setLeftOpen(false)}
+      closeRight={() => setRightOpen(false)}
+      leftContent={leftSidebar}
+      rightContent={rightPanel}
+    />
+  </div>
+)
 }

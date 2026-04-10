@@ -33,8 +33,8 @@ export default function ChatMain({
   }, [messages, busy, error])
 
   return (
-    <section className="flex min-h-[100svh] flex-col bg-bg-main">
-      <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+    <section className="flex h-full min-h-0 flex-col bg-bg-main overflow-hidden">
+      <header className="shrink-0 flex items-center justify-between border-b border-white/10 px-4 py-3">
         <button className="chat-icon-btn md:hidden" onClick={onOpenLeftDrawer}>☰</button>
         <div>
           <h2 className="text-base font-semibold text-text-primary">{title}</h2>
@@ -43,7 +43,7 @@ export default function ChatMain({
         <button className="chat-icon-btn lg:hidden" onClick={onOpenRightDrawer}>⚙</button>
       </header>
 
-      <div ref={listRef} className="flex-1 space-y-4 overflow-y-auto p-4">
+      <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <p className="chat-subtle">Start the conversation — previous messages will be reused as memory.</p>
         )}
@@ -56,9 +56,9 @@ export default function ChatMain({
         {busy && <p className="chat-subtle">Teto is thinking...</p>}
       </div>
 
-      {error && <div className="px-4 pb-2 text-sm text-red-300">⚠ {error}</div>}
+      {error && <div className="shrink-0 px-4 pb-2 text-sm text-red-300">⚠ {error}</div>}
 
-      <footer className="sticky bottom-0 border-t border-white/10 bg-bg-panel2 p-4">
+       <footer className="shrink-0 border-t border-white/10 bg-bg-panel2 p-4">
         <div className="flex items-center gap-3">
           <input
             value={input}
