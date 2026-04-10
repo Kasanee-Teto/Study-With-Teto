@@ -1,24 +1,92 @@
+/* Background image layer */
 .dashboard::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url(../assets/teto2.jpg) no-repeat center center fixed;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
+  inset: 0;
+  background: url(../assets/teto2.jpg) center / cover no-repeat;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Pastel overlay layer (biar cute + readable) */
+.dashboard::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 214, 235, 0.55),
+      rgba(214, 236, 255, 0.55)
+    );
+  backdrop-filter: blur(2px);
   z-index: -1;
   pointer-events: none;
 }
 
+/* Optional: bikin semua card terasa konsisten */
+.dashboard .card,
+.dashboard .panel {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 170, 210, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
+}
+
+/* Card images */
 .card-chat .card-image {
   background-image: url(../assets/chat.jpg);
-  background-size: 450px 400px;
+  background-size: cover;
+  background-position: center;
 }
 
 .card-chess .card-image {
   background-image: url(../assets/chess.jpg);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Notion-like todo rows */
+.todo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.todo-row:hover {
+  background: rgba(255, 214, 235, 0.35);
+}
+
+.todo-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #fb73b3; /* pink pastel */
+  flex: 0 0 auto;
+}
+
+.todo-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #374151;
+}
+
+.todo-input::placeholder {
+  color: rgba(55, 65, 81, 0.55);
+}
+
+.todo-add {
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 214, 235, 0.5);
+  border: 1px dashed rgba(251, 115, 179, 0.45);
+  color: #374151;
+}
+
+.todo-add:hover {
+  background: rgba(255, 214, 235, 0.7);
 }
