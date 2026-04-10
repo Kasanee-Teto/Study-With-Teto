@@ -4,15 +4,21 @@ import { Chessboard } from 'react-chessboard'
 import { createEngine } from '../lib/chessEngine'
 import { postJSON, callAI } from '../lib/api'
 
+// Starting FEN — avoids reading refs during render for initial state
 const STARTING_FEN = new Chess().fen()
 
 export default function ChessPage() {
   const gameRef = useRef(new Chess())
   const engineRef = useRef(null)
 
+  // Generation counter: incremented on reset to ignore stale bestmove callbacks
   const genRef = useRef(0)
+
+  // Engine readiness tracking
   const uciOkRef = useRef(false)
   const readyOkRef = useRef(false)
+
+  // When we send "go ..." we expect a bestmove later
   const expectingBestmoveRef = useRef(false)
   const bestmoveGenRef = useRef(0)
 
@@ -23,7 +29,6 @@ export default function ChessPage() {
   const [busy, setBusy] = useState(false)
   const [coachText, setCoachText] = useState('')
   const [errorText, setErrorText] = useState('')
-  const [selectedSquare, setSelectedSquare] = useState(null)
 
   function recomputeEngineReady() {
     const ready = uciOkRef.current && readyOkRef.current
@@ -34,8 +39,10 @@ export default function ChessPage() {
   function sync() {
     const game = gameRef.current
     setFen(game.fen())
+
     const over = game.isGameOver()
     setIsGameOver(over)
+
     if (over) setStatus('Game over')
     else setStatus(game.turn() === 'w' ? 'Your move' : "Teto's move")
   }
@@ -45,11 +52,15 @@ export default function ChessPage() {
 
     async function init() {
       await postJSON('/api/user/upsert')
+
       const engine = createEngine()
       engineRef.current = engine
 
+      // One handler for the whole lifecycle (do not overwrite later)
       engine.setMessageHandler((line) => {
-        if (!mounted || !line) return
+        if (!mounted) return
+        if (!line) return
+
         const text = String(line).trim()
 
         if (text === 'uciok') {
@@ -65,9 +76,15 @@ export default function ChessPage() {
         }
 
         if (text.startsWith('bestmove')) {
+          // Only apply if we were actually expecting a bestmove
           if (!expectingBestmoveRef.current) return
+
+          // Stop expecting now (prevents double-apply if engine repeats)
           expectingBestmoveRef.current = false
-          if (genRef.current !== bestmoveGenRef.current) return
+
+          // Ignore stale bestmove from before reset()
+          const expectedGen = bestmoveGenRef.current
+          if (genRef.current !== expectedGen) return
 
           const best = text.split(/\s+/)[1]
           if (best && best !== '(none)') {
@@ -85,10 +102,16 @@ export default function ChessPage() {
               setErrorText('Engine returned an invalid move.')
             }
           }
+
           setBusy(false)
+          return
         }
+
+        // Optional: you can debug engine output by uncommenting:
+        // console.log('SF:', text)
       })
 
+      // Reset readiness flags each time we (re)create the engine
       uciOkRef.current = false
       readyOkRef.current = false
       recomputeEngineReady()
@@ -112,8 +135,15 @@ export default function ChessPage() {
   function engineMove() {
     const engine = engineRef.current
     const game = gameRef.current
-    if (!engine || !engineReady || game.isGameOver()) return
+    if (!engine) {
+      setErrorText('Engine not available.')
+      return
+    }
 
+    // If game already over, don't ask engine
+    if (game.isGameOver()) return
+
+    // Record which generation this "go" belongs to
     expectingBestmoveRef.current = true
     bestmoveGenRef.current = genRef.current
 
@@ -122,30 +152,50 @@ export default function ChessPage() {
     setErrorText('')
 
     engine.send(`position fen ${game.fen()}`)
+    // For beginners, depth is ok. You can switch to movetime for smoother difficulty:
+    // engine.send('go movetime 300')
     engine.send('go depth 12')
   }
 
-  async function afterPlayerMove(moveSan) {
+  async function onDrop(sourceSquare, targetSquare, piece) {
     const game = gameRef.current
+
+    // Guards
+    if (busy || game.isGameOver() || !engineReady) return false
+    if (game.turn() !== 'w') return false
+
+    // Detect pawn promotion (white to rank 8)
+    const isPromotion = piece === 'wP' && targetSquare[1] === '8'
+
+    const move = game.move({
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: isPromotion ? 'q' : undefined
+    })
+
+    if (!move) return false
+
     sync()
     setErrorText('')
 
+    // Ask coach for quick explanation after player move
     try {
       const coach = await callAI({
         mode: 'coach',
         messages: [
           {
             role: 'user',
-            content: `Explain this move in simple terms: ${moveSan}. Current FEN: ${game.fen()}`
+            content: `Explain this move in simple terms: ${move.san}. Current FEN: ${game.fen()}`
           }
         ]
       })
       setCoachText(coach)
     } catch (e) {
-      console.warn('Coach unavailable:', e)
+      console.warn(e)
     }
 
-    if (!game.isGameOver() && engineReady) {
+    // Engine replies
+    if (!game.isGameOver()) {
       setTimeout(() => {
         try {
           engineMove()
@@ -156,55 +206,8 @@ export default function ChessPage() {
         }
       }, 200)
     }
-  }
 
-  // Shared move logic (used by drag and click)
-  async function tryPlayerMove(from, to, pieceHint) {
-    const game = gameRef.current
-    if (busy || game.isGameOver()) return false
-    if (game.turn() !== 'w') return false
-
-    const isPromotion =
-      (pieceHint === 'wP' || game.get(from)?.type === 'p') && to?.[1] === '8'
-
-    let move = null
-    try {
-      move = game.move({
-        from,
-        to,
-        promotion: isPromotion ? 'q' : undefined
-      })
-    } catch {
-      return false
-    }
-
-    if (!move) return false
-    await afterPlayerMove(move.san)
     return true
-  }
-
-  async function onDrop(sourceSquare, targetSquare, piece) {
-    return await tryPlayerMove(sourceSquare, targetSquare, piece)
-  }
-
-  // Fallback for touch/mobile emulation: click source then destination
-  async function onPieceClick(piece, square) {
-    if (busy || isGameOver) return
-
-    if (!selectedSquare) {
-      // first click: only white piece on white turn
-      const g = gameRef.current
-      const p = g.get(square)
-      if (!p || p.color !== 'w' || g.turn() !== 'w') return
-      setSelectedSquare(square)
-      return
-    }
-
-    // second click: attempt move
-    const from = selectedSquare
-    const to = square
-    setSelectedSquare(null)
-    await tryPlayerMove(from, to, piece)
   }
 
   async function saveGame() {
@@ -225,10 +228,17 @@ export default function ChessPage() {
   }
 
   function reset() {
+    // Increment generation so any in-flight bestmove is ignored
     genRef.current += 1
+
+    // Cancel current engine search (if any)
     try {
       engineRef.current?.send('stop')
-    } catch {}
+    } catch {
+      // ignore
+    }
+
+    // Also clear expectation, so a late bestmove won't apply
     expectingBestmoveRef.current = false
 
     gameRef.current = new Chess()
@@ -236,13 +246,12 @@ export default function ChessPage() {
     setIsGameOver(false)
     setCoachText('')
     setErrorText('')
-    setSelectedSquare(null)
     sync()
   }
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
-      <h2>Chess vs Teto</h2>
+      <h2>Chess vs Teto<img src="/src/assets/chess2.png" alt="Chess" style={{float: 'right', marginLeft: 8, width: 50, height: 50 }} /></h2>
 
       <div>
         Status: {status} {busy ? '(thinking...)' : ''}
@@ -263,8 +272,7 @@ export default function ChessPage() {
           <Chessboard
             position={fen}
             onPieceDrop={onDrop}
-            onPieceClick={onPieceClick}
-            arePiecesDraggable={!busy && !isGameOver}
+            arePiecesDraggable={!busy && engineReady && !isGameOver}
           />
 
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
