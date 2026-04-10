@@ -38,6 +38,10 @@ export default function Dashboard() {
     setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)))
   }
 
+  function deleteTodo(id) {
+    setTodos((prev) => prev.filter((t) => t.id !== id))
+  }
+
   return (
     <div className="dashboard relative min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
       {/* Dropdown Menu */}
@@ -79,8 +83,8 @@ export default function Dashboard() {
 
       {/* Header */}
       <div className="dashboard-header text-center mb-10 bg-white/85 backdrop-blur px-7 py-5 rounded-2xl shadow-md border border-pink-100">
-        <h2 className="text-3xl font-extrabold !text-pink-600">Dashboard</h2>
-        <div className="text-rose-400/90 text-sm">Hi, {username}</div>
+        <h2 className="text-3xl font-extrabold !text-black">Dashboard</h2>
+        <div className="text-black text-sm">Hi, {username}</div>
       </div>
 
       {/* Main Layout */}
@@ -111,8 +115,8 @@ export default function Dashboard() {
               <h3 className="m-0 text-gray-800 text-lg font-semibold border-t border-pink-100 pt-3">
                 Play Chess vs Teto
               </h3>
-              <p className="mt-2 text-sm text-gray-600"> 
-                  Focus training + step analysis (coming soon).
+              <p className="mt-2 text-sm text-gray-600">
+                Focus training + step analysis (coming soon).
               </p>
             </div>
           </Link>
@@ -121,7 +125,13 @@ export default function Dashboard() {
         {/* Right: Todo Panel */}
         <div className="panel px-5 py-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold text-gray-800">Today</h3>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Today</h3>
+              <div className="text-xs text-gray-500">
+                {todos.length} task{todos.length === 1 ? '' : 's'}
+              </div>
+            </div>
+
             <button
               className="todo-add"
               type="button"
@@ -134,25 +144,44 @@ export default function Dashboard() {
 
           <div className="space-y-2">
             {todos.map((t) => (
-              <div className="todo-row" key={t.id}>
+              <div
+                className={`todo-row ${t.done ? 'is-done' : ''}`}
+                key={t.id}
+              >
                 <input
                   className="todo-checkbox"
                   type="checkbox"
                   checked={t.done}
-                  onChange={(e) => updateTodo(t.id, { done: e.target.checked })}
+                  onChange={(e) =>
+                    updateTodo(t.id, { done: e.target.checked })
+                  }
                 />
+
                 <input
                   className="todo-input"
                   value={t.text}
                   placeholder="Add Task…"
                   onChange={(e) => updateTodo(t.id, { text: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') addTodo()
+                  }}
                 />
+
+                <button
+                  type="button"
+                  className="todo-delete"
+                  onClick={() => deleteTodo(t.id)}
+                  aria-label="Delete task"
+                  title="Delete"
+                >
+                  ×
+                </button>
               </div>
             ))}
           </div>
 
           <div className="mt-4 text-xs text-gray-500">
-            Tip: press “Add task”, write quickly, checklist done.
+            Tip: press Enter to add a new task quickly.
           </div>
         </div>
       </div>
