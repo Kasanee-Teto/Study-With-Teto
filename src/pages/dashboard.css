@@ -8,7 +8,6 @@
   pointer-events: none;
 }
 
-/* Pastel overlay layer (biar cute + readable) */
 .dashboard::after {
   content: '';
   position: fixed;
@@ -23,7 +22,6 @@
   pointer-events: none;
 }
 
-/* Optional: bikin semua card terasa konsisten */
 .dashboard .card,
 .dashboard .panel {
   background: rgba(255, 255, 255, 0.9);
@@ -32,7 +30,6 @@
   box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
 }
 
-/* Card images */
 .card-chat .card-image {
   background-image: url(../assets/chat.jpg);
   background-size: cover;
@@ -45,7 +42,6 @@
   background-position: center;
 }
 
-/* Notion-like todo rows */
 .todo-row {
   display: flex;
   align-items: center;
@@ -97,7 +93,6 @@
   transform: translateY(-1px);
 }
 
-/* Delete button (muncul saat hover row) */
 .todo-delete {
   width: 30px;
   height: 30px;
@@ -121,4 +116,113 @@
 .todo-delete:hover {
   background: rgba(255, 214, 235, 0.8);
   transform: translateY(-1px);
+}
+
+/* Feedback modal */
+.feedback-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, 0.35);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.feedback-modal {
+  width: min(560px, 92vw);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 170, 210, 0.45);
+  box-shadow: 0 18px 50px rgba(40, 20, 60, 0.25);
+  padding: 16px 16px 14px;
+}
+
+.feedback-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.feedback-title h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.feedback-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(251, 115, 179, 0.25);
+  background: rgba(255, 214, 235, 0.4);
+  color: #111827;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.feedback-close:hover {
+  background: rgba(255, 214, 235, 0.65);
+}
+
+.feedback-subtitle {
+  margin: 8px 0 10px;
+  font-size: 13px;
+  color: rgba(31, 41, 55, 0.75);
+}
+
+.feedback-textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(251, 115, 179, 0.35);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 12px 12px;
+  outline: none;
+  resize: vertical;
+  color: #111827;
+}
+
+.feedback-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(251, 115, 179, 0.22);
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.feedback-cancel,
+.feedback-send {
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(251, 115, 179, 0.35);
+  background: rgba(255, 255, 255, 0.8);
+  color: #111827;
+}
+
+.feedback-send {
+  background: rgba(255, 214, 235, 0.75);
+}
+
+.feedback-send:disabled,
+.feedback-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.feedback-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+.feedback-success {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #16a34a;
 }

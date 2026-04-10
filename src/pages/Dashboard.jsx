@@ -14,6 +14,13 @@ export default function Dashboard() {
     { id: crypto.randomUUID(), text: '', done: false },
   ])
 
+  // Feedback modal state
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [feedbackSending, setFeedbackSending] = useState(false)
+  const [feedbackSent, setFeedbackSent] = useState(false)
+  const [feedbackError, setFeedbackError] = useState('')
+
   const username = useMemo(() => {
     return user?.user_metadata?.user_name || user?.email || 'User'
   }, [user])
@@ -42,6 +49,44 @@ export default function Dashboard() {
     setTodos((prev) => prev.filter((t) => t.id !== id))
   }
 
+  async function submitFeedback() {
+    const msg = feedbackText.trim()
+    if (!msg) return
+
+    setFeedbackSending(true)
+    setFeedbackError('')
+    setFeedbackSent(false)
+
+    try {
+      const { data: auth } = await supabase.auth.getUser()
+      const u = auth?.user
+
+      const { error } = await supabase.from('feedback').insert([
+        {
+          user_id: u?.id ?? null,
+          username: u?.user_metadata?.user_name ?? null,
+          email: u?.email ?? null,
+          message: msg,
+          page: window.location.pathname,
+        },
+      ])
+
+      if (error) throw error
+
+      setFeedbackSent(true)
+      setFeedbackText('')
+
+      setTimeout(() => {
+        setFeedbackOpen(false)
+        setFeedbackSent(false)
+      }, 900)
+    } catch (e) {
+      setFeedbackError(e?.message || 'Failed to send feedback')
+    } finally {
+      setFeedbackSending(false)
+    }
+  }
+
   return (
     <div className="dashboard relative min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
       {/* Dropdown Menu */}
@@ -64,11 +109,23 @@ export default function Dashboard() {
         >
           <button
             className="block w-full text-center px-3 py-2 hover:bg-pink-50 text-gray-700 font-medium transition-colors duration-200"
+            onClick={() => {
+              setDropdownOpen(false)
+              setFeedbackOpen(true)
+            }}
+          >
+            Feedback
+          </button>
+
+          <button
+            className="block w-full text-center px-3 py-2 hover:bg-pink-50 text-gray-700 font-medium transition-colors duration-200"
             onClick={() => setDropdownOpen(false)}
           >
             Settings (soon)
           </button>
+
           <hr className="my-2" />
+
           <button
             className="block w-full text-center px-3 py-2 hover:bg-red-50 text-red-500 font-medium transition-colors duration-200"
             onClick={() => {
@@ -132,12 +189,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <button
-              className="todo-add"
-              type="button"
-              onClick={addTodo}
-              aria-label="Add task"
-            >
+            <button className="todo-add" type="button" onClick={addTodo}>
               + Add task
             </button>
           </div>
@@ -185,6 +237,74 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Feedback Modal */}
+      {feedbackOpen && (
+        <div
+          className="feedback-backdrop"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setFeedbackOpen(false)
+          }}
+        >
+          <div
+            className="feedback-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Feedback"
+          >
+            <div className="feedback-title">
+              <h3>Send Feedback</h3>
+              <button
+                type="button"
+                className="feedback-close"
+                onClick={() => setFeedbackOpen(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <p className="feedback-subtitle">
+              Any suggestions or bugs are welcome. This will help make "Study with Teto" even better.
+            </p>
+
+            <textarea
+              className="feedback-textarea"
+              value={feedbackText}
+              placeholder="Write your feedback here…"
+              onChange={(e) => setFeedbackText(e.target.value)}
+              rows={5}
+            />
+
+            {feedbackError && (
+              <div className="feedback-error">{feedbackError}</div>
+            )}
+            {feedbackSent && (
+              <div className="feedback-success">Thanks! Feedback sent.</div>
+            )}
+
+            <div className="feedback-actions">
+              <button
+                type="button"
+                className="feedback-cancel"
+                onClick={() => setFeedbackOpen(false)}
+                disabled={feedbackSending}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="feedback-send"
+                onClick={submitFeedback}
+                disabled={feedbackSending || !feedbackText.trim()}
+              >
+                {feedbackSending ? 'Sending…' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
