@@ -112,7 +112,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* TOP NAV full width, teks tengah */}
+      {/* TOP NAV */}
       <header className="topnav">
         <div className="topnav-inner">
           <div className="topnav-left">
@@ -239,7 +239,8 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        <div className="panel px-5 py-5">
+        {/* Right: Todo Panel */}
+        <div className="panel px-5 py-5 todo-panel">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="text-lg font-semibold text-gray-800">Today</h3>
@@ -253,7 +254,8 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="space-y-2">
+          {/* Scroll hanya kalau task > 3 */}
+          <div className={`todo-list ${todos.length > 3 ? 'is-scroll' : ''}`}>
             {todos.map((t) => (
               <div className={`todo-row ${t.done ? 'is-done' : ''}`} key={t.id}>
                 <input
@@ -286,7 +288,8 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="mt-4 text-xs text-gray-500">
+          {/* Tip selalu stay di kiri bawah panel */}
+          <div className="todo-tip text-xs text-gray-500">
             Tip: press Enter to add a new task quickly.
           </div>
         </div>
@@ -315,7 +318,7 @@ export default function Dashboard() {
             </div>
 
             <p className="feedback-subtitle">
-              Any suggestions or bugs are welcome. This will help make “Study with Teto” even better.
+              Any suggestions or bug reports are welcome. This helps "Study with Teto" become even better.
             </p>
 
             <textarea

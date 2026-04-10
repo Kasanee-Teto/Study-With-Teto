@@ -74,7 +74,7 @@
   box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
   backdrop-filter: blur(6px);
 
-  padding: 10px 16px 10px 76px; /* ruang hamburger */
+  padding: 10px 16px 10px 76px;
 }
 
 .topnav-left {
@@ -398,6 +398,43 @@
 .todo-delete:hover {
   background: rgba(255, 214, 235, 0.8);
   transform: translateY(-1px);
+}
+
+/* ===== Scroll hanya kalau task > 3 ===== */
+.todo-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todo-list.is-scroll {
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.todo-list.is-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.todo-list.is-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+}
+.todo-list.is-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===== Fix: Tip selalu di pojok kiri bawah panel ===== */
+.todo-panel {
+  position: relative;
+  padding-bottom: 48px; /* ruang untuk tip */
+}
+
+.todo-tip {
+  position: absolute;
+  left: 20px;
+  bottom: 16px;
 }
 
 /* Feedback modal */
