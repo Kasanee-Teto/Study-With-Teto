@@ -4,130 +4,12 @@ body {
   overflow: hidden;
 }
 
-.sign-in-page * {
-  box-sizing: border-box;
-}
-
 .sign-in-page {
-  min-height: 100vh;
-  margin: 0;
-  font-family: Roboto, -apple-system, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto.jpg);
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto1.png);
   background-size: 100% 100%;
   background-position: center;
   background-attachment: fixed;
-  padding: 30px;
 }
-
-.sign-in-page .forms-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 30px;
-}
-
-.sign-in-page .section-title {
-  font-size: 35px;
-  letter-spacing: 5px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #ffffff;
-  text-align: center;
-  margin: 20px 10px 15px;
-}
-
-.sign-in-page .forms {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 430px;
-  margin-top: 45px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.sign-in-page .button-tabs {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  margin-bottom: 20px;
-  width: 100%;
-}
-
-
-.sign-in-page .form-wrapper {
-  position: relative;
-  width: 100%;
-  opacity: 0;
-  pointer-events: none;
-  min-height: 0;
-  display: none;
-}
-
-.sign-in-page .form-wrapper.is-active {
-  opacity: 1;
-  pointer-events: auto;
-  min-height: auto;
-  display: block;
-}
-
-.sign-in-page .switcher {
-  background: none;
-  border: none;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 10px 20px;
-  letter-spacing: 1px;
-  outline: none;
-  position: static;
-  margin-bottom: 0;
-  z-index: 100;
-  pointer-events: auto;
-  display: block;
-}
-
-.sign-in-page .switcher:hover {
-  color: #a7e245;
-}
-
-.sign-in-page .switcher.is-active {
-  color: #a7e245;
-}
-
-.sign-in-page .switcher .underline {
-  display: block;
-  width: 0;
-  height: 3px;
-  background-color: #a7e245;
-  margin-top: 5px;
-  transition: width 0.5s ease-out;
-}
-
-.sign-in-page .switcher.is-active .underline {
-  width: 100%;
-}
-
-.sign-in-page .form-wrapper.is-active .switcher .underline {
-  width: 100%;
-}
-
-.sign-in-page .form {
-  min-width: 260px;
-  max-width: 400px;
-  margin-top: 20px;
-  padding: 30px 25px;
-  border-radius: 5px;
-  background-color: #f59191;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.5s ease-out;
-}
-
-
 
 @keyframes slideUp {
   from {
@@ -140,154 +22,26 @@ body {
   }
 }
 
-.sign-in-page .form fieldset {
-  margin: 0;
-  padding: 0;
-  border: 0;
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out;
 }
 
-.sign-in-page .form legend {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip: rect(0 0 0 0);
-}
-
-.sign-in-page .input-block {
-  margin-bottom: 20px;
-}
-
-.sign-in-page .input-block:nth-child(1) {
-  animation-delay: 0.05s;
-}
-
-.sign-in-page .input-block:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.sign-in-page .input-block:nth-child(3) {
-  animation-delay: 0.15s;
-}
-
-.sign-in-page .input-block:nth-child(4) {
-  animation-delay: 0.2s;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.sign-in-page .input-block label {
-  font-size: 14px;
-  color: #555;
-  font-weight: 500;
-}
-
-.sign-in-page .input-block input {
-  display: block;
-  width: 100%;
-  margin-top: 8px;
-  padding: 10px 15px;
-  font-size: 16px;
-  color: #3b4465;
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.sign-in-page .form [type="submit"] {
-  opacity: 1;
-  display: block;
-  min-width: 120px;
-  margin: 30px auto 10px;
-  font-size: 18px;
-  padding: 10px 20px;
-  line-height: 40px;
-  border-radius: 25px;
-  border: none;
-  transition: all 0.3s ease-out;
-  color: #fbfdff;
-  background: #a7e245;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.sign-in-page .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 12px 15px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
-  font-size: 14px;
-}
-
-.sign-in-page .social-media {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 20px 0;
-}
-
-.sign-in-page .social-icon {
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  background-size: 50%;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: all 0.3s ease-out;
-  opacity: 0.8;
-}
-
-.sign-in-page .social-icon:hover {
-  opacity: 1;
-  transform: scale(1.1);
-}
-
-.sign-in-page .social-icon.google {
-  background-color: transparent;
+.social-icon-btn.google-icon {
   background-image: url(../assets/google.jpg);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  box-shadow: 3px 3px  rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
 }
 
-.sign-in-page .social-icon.github {
-  background-color: transparent;
+.social-icon-btn.github-icon {
   background-image: url(../assets/github.png);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  box-shadow: 3px 3px  rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
 }
 
-.sign-in-page .social-icon.linkedin {
-  background-color: transparent;
+.social-icon-btn.linkedin-icon {
   background-image: url(../assets/linkedin.png);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  box-shadow: 3px 3px  rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
 }
 
-.sign-in-page .social-icon.x {
-  background-color: transparent;
+.social-icon-btn.x-icon {
   background-image: url(../assets/X.png);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  box-shadow: 3px 3px  rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
 }

@@ -1,61 +1,8 @@
-.sign-up-page * {
-  box-sizing: border-box;
-}
-
-.sign-up-hightlight{
-  color: #a7e245;
-  font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  margin-top: 50px;
-  width: 100%;
-}
-
 .sign-up-page {
-  min-height: 100vh;
-  margin: 0;
-  font-family: Roboto, -apple-system, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto.jpg);
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto1.png);
   background-size: 100% 100%;
   background-position: center;
   background-attachment: fixed;
-  padding: 30px;
-}
-
-.sign-up-page .forms-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-.sign-up-page .section-title {
-  font-size: 35px;
-  letter-spacing: 4px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #ffffff;
-  text-align: center;
-  margin: 20px 10px 15px;
-}
-
-.sign-up-page .forms {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 30px;
-}
-
-.sign-up-page .form {
-  min-width: 260px;
-  max-width: 400px;
-  margin-top: 20px;
-  padding: 30px 25px;
-  border-radius: 5px;
-  background-color: #f59191;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.5s ease-out;
 }
 
 @keyframes slideUp {
@@ -69,41 +16,6 @@
   }
 }
 
-.sign-up-page .form fieldset {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.sign-up-page .form legend {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip: rect(0 0 0 0);
-}
-
-.sign-up-page .input-block {
-  margin-bottom: 20px;
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-.sign-up-page .input-block:nth-child(1) {
-  animation-delay: 0.05s;
-}
-
-.sign-up-page .input-block:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.sign-up-page .input-block:nth-child(3) {
-  animation-delay: 0.15s;
-}
-
-.sign-up-page .input-block:nth-child(4) {
-  animation-delay: 0.1s;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -115,66 +27,10 @@
   }
 }
 
-.sign-up-page .input-block label {
-  font-size: 14px;
-  color: #555;
-  font-weight: 500;
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out;
 }
 
-.sign-up-page .input-block input {
-  display: block;
-  width: 100%;
-  margin-top: 8px;
-  padding: 10px 15px;
-  font-size: 16px;
-  color: #3b4465;
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.sign-up-page .form [type="submit"] {
-  opacity: 1;
-  display: block;
-  min-width: 120px;
-  margin: 30px auto 10px;
-  font-size: 18px;
-  padding: 10px 20px;
-  line-height: 40px;
-  border-radius: 25px;
-  border: none;
-  transition: all 0.5s ease-out;
-  color: #fbfdff;
-  background: #a7e245;
-  cursor: pointer;
-  font-weight: 600;
-
-}
-
-.sign-up-page .form [type="submit"]:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-  .sign-up-page .forms {
-    width: 100%;
-    max-width: 460px;
-    flex-direction: column;
-    gap: 24px;
-    align-items: stretch;
-  }
-
-  .sign-up-page .form {
-    min-width: 100%;
-    margin-top: 16px;
-    background: #ffffff;
-  }
-
-  .sign-up-page .form fieldset {
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
 }
