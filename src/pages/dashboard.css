@@ -1,4 +1,4 @@
-/* Background image layer */
+/* ========== Background ========== */
 .dashboard::before {
   content: '';
   position: fixed;
@@ -11,25 +11,27 @@
 .dashboard::after {
   content: '';
   position: fixed;
-  inset:  0;
+  inset: 0;
   background: linear-gradient(
     135deg,
     rgba(255, 214, 235, 0.55),
-    rgba(214, 236, 255, 0.55)
+    rgba(0, 0, 0, 0.55)
   );
   backdrop-filter: blur(2px);
   z-index: -1;
   pointer-events: none;
 }
 
+/* ========== Card / Panel base ========== */
 .dashboard .card,
 .dashboard .panel {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(197, 197, 197, 0.9);
   border: 1px solid rgba(255, 170, 210, 0.35);
   border-radius: 16px;
   box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
 }
 
+/* Card images */
 .card-chat .card-image {
   background-image: url(../assets/chat.jpg);
   background-size: cover;
@@ -42,6 +44,65 @@
   background-position: center;
 }
 
+/* ========== Dropdown menu items with icons (FIX) ========== */
+/* Ini yang bikin Feedback / Settings / Logout rapi */
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-radius: 12px;
+
+  /* reset button style biar konsisten */
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+
+  color: #000000;
+  font-weight: 600;
+
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255, 214, 235, 0.35);
+}
+
+.menu-item span {
+  display: block;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.menu-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  opacity: 0.9;
+  filter: saturate(0.9) contrast(1.05);
+}
+
+.menu-item-danger {
+  color: #000000;
+}
+
+.menu-item-danger:hover {
+  background: rgba(254, 202, 202, 0.45);
+}
+
+/* Divider rapih */
+.menu-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 8px 10px;
+  border: 0;
+}
+
+/* ========== Todo (Notion-like) ========== */
 .todo-row {
   display: flex;
   align-items: center;
@@ -63,7 +124,7 @@
 .todo-checkbox {
   width: 18px;
   height: 18px;
-  accent-color: #fb73b3; /* pink pastel */
+  accent-color: #fb73b3;
   flex: 0 0 auto;
 }
 
@@ -73,6 +134,7 @@
   border: none;
   outline: none;
   color: #374151;
+  min-width: 0; /* penting biar input gak maksa layout */
 }
 
 .todo-input::placeholder {
@@ -107,6 +169,7 @@
   transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
   opacity: 0;
   flex: 0 0 auto;
+  cursor: pointer;
 }
 
 .todo-row:hover .todo-delete {
@@ -118,7 +181,7 @@
   transform: translateY(-1px);
 }
 
-/* Feedback modal */
+/* ========== Feedback modal ========== */
 .feedback-backdrop {
   position: fixed;
   inset: 0;
@@ -162,6 +225,7 @@
   color: #111827;
   font-size: 20px;
   line-height: 1;
+  cursor: pointer;
 }
 
 .feedback-close:hover {
@@ -203,6 +267,7 @@
   border: 1px solid rgba(251, 115, 179, 0.35);
   background: rgba(255, 255, 255, 0.8);
   color: #111827;
+  cursor: pointer;
 }
 
 .feedback-send {

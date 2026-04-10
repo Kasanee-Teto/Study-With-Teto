@@ -2,6 +2,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useEffect, useMemo, useState } from 'react'
 import './dashboard.css'
+import feedbackIcon from '../assets/feedback.png'
+import settingsIcon from '../assets/settings.png'
+import logoutIcon from '../assets/logout.png'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
@@ -101,39 +104,39 @@ export default function Dashboard() {
         </button>
 
         <div
-          className={`absolute left-0 mt-2 w-52 bg-white/90 backdrop-blur rounded-xl shadow-lg py-2 z-50 transition-all duration-300 ease-in-out origin-top-left ${
+          className={`absolute left-0 mt-2 w-56 bg-gray/90 backdrop-blur rounded-xl shadow-lg py-2 z-50 transition-all duration-300 ease-in-out origin-top-left ${
             dropdownOpen
               ? 'opacity-100 scale-100 pointer-events-auto'
               : 'opacity-0 scale-95 pointer-events-none'
           }`}
         >
           <button
-            className="block w-full text-center px-3 py-2 hover:bg-pink-50 text-gray-700 font-medium transition-colors duration-200"
+            className="menu-item"
             onClick={() => {
               setDropdownOpen(false)
               setFeedbackOpen(true)
             }}
           >
-            Feedback
+            <img className="menu-icon" src={feedbackIcon} alt="" aria-hidden="true" />
+            <span>Feedback</span>
           </button>
 
-          <button
-            className="block w-full text-center px-3 py-2 hover:bg-pink-50 text-gray-700 font-medium transition-colors duration-200"
-            onClick={() => setDropdownOpen(false)}
-          >
-            Settings (soon)
+          <button className="menu-item" onClick={() => setDropdownOpen(false)}>
+            <img className="menu-icon" src={settingsIcon} alt="" aria-hidden="true" />
+            <span>Settings (soon)</span>
           </button>
 
-          <hr className="my-2" />
+          <hr className="menu-divider" />
 
           <button
-            className="block w-full text-center px-3 py-2 hover:bg-red-50 text-red-500 font-medium transition-colors duration-200"
+            className="menu-item menu-item-danger"
             onClick={() => {
               setDropdownOpen(false)
               logout()
             }}
           >
-            Logout
+            <img className="menu-icon" src={logoutIcon} alt="" aria-hidden="true" />
+            <span>Logout</span>
           </button>
         </div>
       </div>
@@ -152,7 +155,7 @@ export default function Dashboard() {
             to="/chat"
             className="card card-chat group flex flex-col text-decoration-none overflow-hidden hover:shadow-xl hover:translate-y-[-6px] transition-all duration-300 cursor-pointer"
           >
-            <div className="card-image w-full h-44 bg-cover bg-center bg-no-repeat"></div>
+            <div className="card-image w-full h-44 bg-cover bg-center bg-no-repeat" />
             <div className="card-content px-5 py-5 text-center">
               <h3 className="m-0 text-gray-800 text-lg font-semibold border-t border-pink-100 pt-3">
                 Chat with Teto
@@ -167,7 +170,7 @@ export default function Dashboard() {
             to="/chess"
             className="card card-chess group flex flex-col text-decoration-none overflow-hidden hover:shadow-xl hover:translate-y-[-6px] transition-all duration-300 cursor-pointer"
           >
-            <div className="card-image w-full h-44 bg-cover bg-center bg-no-repeat"></div>
+            <div className="card-image w-full h-44 bg-cover bg-center bg-no-repeat" />
             <div className="card-content px-5 py-5 text-center">
               <h3 className="m-0 text-gray-800 text-lg font-semibold border-t border-pink-100 pt-3">
                 Play Chess vs Teto
@@ -266,23 +269,20 @@ export default function Dashboard() {
             </div>
 
             <p className="feedback-subtitle">
-              Any suggestions or bugs are welcome. This will help make "Study with Teto" even better.
+              Saran/bug apa pun boleh. Ini membantu “Study with Teto” jadi lebih
+              bagus.
             </p>
 
             <textarea
               className="feedback-textarea"
               value={feedbackText}
-              placeholder="Write your feedback here…"
+              placeholder="Tulis feedback kamu di sini…"
               onChange={(e) => setFeedbackText(e.target.value)}
               rows={5}
             />
 
-            {feedbackError && (
-              <div className="feedback-error">{feedbackError}</div>
-            )}
-            {feedbackSent && (
-              <div className="feedback-success">Thanks! Feedback sent.</div>
-            )}
+            {feedbackError && <div className="feedback-error">{feedbackError}</div>}
+            {feedbackSent && <div className="feedback-success">Thanks! Feedback sent.</div>}
 
             <div className="feedback-actions">
               <button
