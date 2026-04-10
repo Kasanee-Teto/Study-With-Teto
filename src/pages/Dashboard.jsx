@@ -7,15 +7,11 @@ import feedbackIcon from '../assets/feedback.png'
 import settingsIcon from '../assets/settings.png'
 import logoutIcon from '../assets/logout.png'
 
-// Kalau kamu punya logo gambar, aktifkan ini:
-// import tetoLogo from '../assets/teto-logo.png'
-
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
 
-  // Jam real-time
   const [now, setNow] = useState(new Date())
 
   const [todos, setTodos] = useState([
@@ -104,8 +100,8 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard relative min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
-      {/* Hamburger tetap pojok kiri atas (posisi semula) */}
-      <div className="absolute top-5 left-5 z-[80]">
+      {/* Hamburger tetap pojok kiri atas */}
+      <div className="absolute top-5 left-5 z-[90]">
         <button
           className="hamburger-btn"
           onClick={() => setSidebarOpen((v) => !v)}
@@ -116,39 +112,35 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* TOP NAV (kiri: Dashboard+Hi, tengah: logo, kanan: tanggal+jam AM/PM) */}
+      {/* TOP NAV full width, teks tengah */}
       <header className="topnav">
-        <div className="topnav-left">
-          <div className="topnav-title">Dashboard</div>
-          <div className="topnav-subtitle">Hi, {username}</div>
-        </div>
-
-        <div className="topnav-center">
-          <div className="topnav-logo-text">KASANE TETO</div>
-
-          {/*
-          <img className="topnav-logo-img" src={tetoLogo} alt="Kasane Teto" />
-          */}
-        </div>
-
-        <div className="topnav-right">
-          <div className="topnav-date">
-            {now.toLocaleDateString('id-ID', {
-              weekday: 'long',
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            })}
+        <div className="topnav-inner">
+          <div className="topnav-left">
+            <div className="topnav-title">Dashboard</div>
+            <div className="topnav-subtitle">Hi, {username}</div>
           </div>
 
-          {/* AM/PM pakai locale en-US biar muncul AM/PM */}
-          <div className="topnav-time">
-            {now.toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: true,
-            })}
+          <div className="topnav-center">
+            <div className="topnav-logo-text">KASANE TETO</div>
+          </div>
+
+          <div className="topnav-right">
+            <div className="topnav-date">
+              {now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </div>
+            <div className="topnav-time">
+              {now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+              })}
+            </div>
           </div>
         </div>
       </header>
@@ -207,7 +199,7 @@ export default function Dashboard() {
 
           <div className="sidebar-footer">
             <div className="sidebar-footer-hint">
-              Tip: klik di area gelap untuk menutup sidebar.
+              Tip: click in the dark area to close the sidebar.
             </div>
           </div>
         </aside>
@@ -323,13 +315,13 @@ export default function Dashboard() {
             </div>
 
             <p className="feedback-subtitle">
-              Saran/bug apa pun boleh. Ini membantu “Study with Teto” jadi lebih bagus.
+              Any suggestions or bugs are welcome. This will help make “Study with Teto” even better.
             </p>
 
             <textarea
               className="feedback-textarea"
               value={feedbackText}
-              placeholder="Tulis feedback kamu di sini…"
+              placeholder="Write your feedback here…"
               onChange={(e) => setFeedbackText(e.target.value)}
               rows={5}
             />
