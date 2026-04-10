@@ -22,7 +22,11 @@ export default function ChatMain({
   error,
   disabled,
   onOpenLeftDrawer,
-  onOpenRightDrawer
+  onOpenRightDrawer,
+  onSpeak,
+  isSpeaking,
+  volume,
+  onVolumeChange
 }) {
   const listRef = useRef(null)
 
@@ -42,7 +46,22 @@ export default function ChatMain({
               src="src/assets/teto-teach-profile.jpeg" 
               alt="Teto Profile Image"
             />
-            <h2 className="text-base font-semibold text-text-primary">{title}</h2>
+            <div className="flex items-center gap-2 justify-center">
+              <h2 className="text-base font-semibold text-text-primary">{title}</h2>
+              <button
+                onClick={() => {
+                  const lastMessage = messages[messages.length - 1]
+                  if (lastMessage?.role === 'assistant') {
+                    onSpeak(lastMessage.content)
+                  }
+                }}
+                disabled={isSpeaking}
+                className="inline-flex items-center justify-center text-lg hover:opacity-70 disabled:opacity-50 transition"
+                title="Speak last message"
+              >
+                {isSpeaking ? '🔊' : '🔇'}
+              </button>
+            </div>
             <p className="chat-subtle text-xs">Teto will help you with your studies</p>
           </div>
         <button className="chat-icon-btn lg:hidden" onClick={onOpenRightDrawer}>⚙</button>
