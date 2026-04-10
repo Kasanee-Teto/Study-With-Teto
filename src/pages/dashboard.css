@@ -1,4 +1,4 @@
-/* ========== Background ========== */
+/* Background image layer */
 .dashboard::before {
   content: '';
   position: fixed;
@@ -14,7 +14,7 @@
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 214, 235, 0.55),
+    rgba(255, 208, 232, 0.55),
     rgba(0, 0, 0, 0.55)
   );
   backdrop-filter: blur(2px);
@@ -22,10 +22,10 @@
   pointer-events: none;
 }
 
-/* ========== Card / Panel base ========== */
+/* Optional: bikin semua card terasa konsisten */
 .dashboard .card,
 .dashboard .panel {
-  background: rgba(197, 197, 197, 0.9);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 170, 210, 0.35);
   border-radius: 16px;
   box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
@@ -44,31 +44,143 @@
   background-position: center;
 }
 
-/* ========== Dropdown menu items with icons (FIX) ========== */
-/* Ini yang bikin Feedback / Settings / Logout rapi */
+/* Hamburger button */
+.hamburger-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 170, 210, 0.5);
+  background: rgba(255, 214, 235, 0.75);
+  box-shadow: 0 10px 25px rgba(40, 20, 60, 0.15);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.hamburger-icon {
+  font-size: 18px;
+  color: #111827;
+  line-height: 1;
+}
+
+/* Sidebar overlay + panel */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 55;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: min(360px, 90vw);
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid rgba(255, 170, 210, 0.35);
+  box-shadow: 0 18px 60px rgba(40, 20, 60, 0.22);
+  transform: translateX(-102%);
+  transition: transform 0.22s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Header dibuat aman dari tombol X (kasih ruang kiri + atas) */
+.sidebar-header {
+  /* TOP dan LEFT ini yang “nurunin” konten biar gak ketiban tombol X */
+  padding: 100px 16px 18px 16px; /* top right bottom left */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Profile block */
+.sidebar-profile {
+  display: flex;
+  align-items: flex-start; /* biar teks benar-benar mulai dari atas */
+  gap: 12px;
+}
+
+.sidebar-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 214, 235, 0.95),
+    rgba(214, 236, 255, 0.95)
+  );
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: rgba(17, 24, 39, 0.85);
+  flex: 0 0 auto;
+}
+
+.sidebar-profile-text {
+  min-width: 0;
+  padding-top: 2px; /* bikin nama/email turun sedikit lagi */
+}
+
+.sidebar-name {
+  font-weight: 900;
+  color: #111827;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.sidebar-email {
+  margin-top: 6px; /* email turun kebawah */
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Nav benar-benar turun kebawah (jarak dari header) */
+.sidebar-nav {
+  padding: 26px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Menu item */
 .menu-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 14px 14px;
+  border-radius: 16px;
 
-  padding: 10px 12px;
-  border-radius: 12px;
-
-  /* reset button style biar konsisten */
-  background: transparent;
-  border: 0;
+  background: rgb(177, 177, 177);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   text-align: left;
   cursor: pointer;
 
   color: #000000;
-  font-weight: 600;
+  font-weight: 800;
 
   transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .menu-item:hover {
-  background: rgba(255, 214, 235, 0.35);
+  background: rgb(176, 117, 117);
+  transform: translateY(-1px);
 }
 
 .menu-item span {
@@ -78,12 +190,17 @@
 }
 
 .menu-icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
   flex: 0 0 auto;
-  opacity: 0.9;
-  filter: saturate(0.9) contrast(1.05);
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 10px 6px;
+  border-radius: 999px;
 }
 
 .menu-item-danger {
@@ -91,18 +208,22 @@
 }
 
 .menu-item-danger:hover {
-  background: rgba(254, 202, 202, 0.45);
+  background: rgb(176, 117, 117);
 }
 
-/* Divider rapih */
-.menu-divider {
-  height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-  margin: 8px 10px;
-  border: 0;
+/* Footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* ========== Todo (Notion-like) ========== */
+.sidebar-footer-hint {
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.65);
+}
+
+/* Todo rows */
 .todo-row {
   display: flex;
   align-items: center;
@@ -130,11 +251,11 @@
 
 .todo-input {
   width: 100%;
+  min-width: 0;
   background: transparent;
   border: none;
   outline: none;
   color: #374151;
-  min-width: 0; /* penting biar input gak maksa layout */
 }
 
 .todo-input::placeholder {
@@ -148,6 +269,7 @@
   border: 1px dashed rgba(251, 115, 179, 0.45);
   color: #374151;
   transition: background 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
 }
 
 .todo-add:hover {
@@ -181,7 +303,7 @@
   transform: translateY(-1px);
 }
 
-/* ========== Feedback modal ========== */
+/* Feedback modal */
 .feedback-backdrop {
   position: fixed;
   inset: 0;

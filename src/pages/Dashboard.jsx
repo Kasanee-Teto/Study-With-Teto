@@ -2,22 +2,24 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useEffect, useMemo, useState } from 'react'
 import './dashboard.css'
+
 import feedbackIcon from '../assets/feedback.png'
 import settingsIcon from '../assets/settings.png'
 import logoutIcon from '../assets/logout.png'
 
+// optional: avatar default (kalau kamu mau)
+// import avatarDefault from '../assets/avatar.png'
+
 export default function Dashboard() {
   const [user, setUser] = useState(null)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
 
-  // Todo UI state (sementara lokal)
   const [todos, setTodos] = useState([
     { id: crypto.randomUUID(), text: '', done: false },
     { id: crypto.randomUUID(), text: '', done: false },
   ])
 
-  // Feedback modal state
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [feedbackText, setFeedbackText] = useState('')
   const [feedbackSending, setFeedbackSending] = useState(false)
@@ -27,6 +29,8 @@ export default function Dashboard() {
   const username = useMemo(() => {
     return user?.user_metadata?.user_name || user?.email || 'User'
   }, [user])
+
+  const email = useMemo(() => user?.email || '', [user])
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
@@ -92,53 +96,78 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard relative min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
-      {/* Dropdown Menu */}
-      <div className="absolute top-5 left-5">
+      {/* Hamburger tetap pojok kiri atas (ini SATU-SATUNYA X) */}
+      <div className="absolute top-5 left-5 z-[80]">
         <button
-          className="bg-pink-200 hover:bg-pink-300 text-gray-700 font-bold py-2 px-4 rounded-xl shadow-sm transition-all duration-300"
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          aria-expanded={dropdownOpen}
-          aria-label="Open menu"
+          className="hamburger-btn"
+          onClick={() => setSidebarOpen((v) => !v)}
+          aria-expanded={sidebarOpen}
+          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
         >
-          ☰
+          <span className="hamburger-icon">{sidebarOpen ? '✕' : '☰'}</span>
         </button>
+      </div>
 
-        <div
-          className={`absolute left-0 mt-2 w-56 bg-gray/90 backdrop-blur rounded-xl shadow-lg py-2 z-50 transition-all duration-300 ease-in-out origin-top-left ${
-            dropdownOpen
-              ? 'opacity-100 scale-100 pointer-events-auto'
-              : 'opacity-0 scale-95 pointer-events-none'
-          }`}
-        >
-          <button
-            className="menu-item"
-            onClick={() => {
-              setDropdownOpen(false)
-              setFeedbackOpen(true)
-            }}
-          >
-            <img className="menu-icon" src={feedbackIcon} alt="" aria-hidden="true" />
-            <span>Feedback</span>
-          </button>
+      {/* Sidebar + Overlay */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) setSidebarOpen(false)
+        }}
+      >
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          {/* Header lebih tinggi biar menu turun */}
+          <div className="sidebar-header">
+            <div className="sidebar-profile">
+              <div className="sidebar-avatar" aria-hidden="true">
+                {/* Kalau kamu punya avatar beneran, ganti jadi <img src="..." /> */}
+                <span>{(username || 'U').slice(0, 1).toUpperCase()}</span>
+              </div>
 
-          <button className="menu-item" onClick={() => setDropdownOpen(false)}>
-            <img className="menu-icon" src={settingsIcon} alt="" aria-hidden="true" />
-            <span>Settings (soon)</span>
-          </button>
+              <div className="sidebar-profile-text">
+                <div className="sidebar-name">{username}</div>
+                {email ? <div className="sidebar-email">{email}</div> : null}
+              </div>
+            </div>
+          </div>
 
-          <hr className="menu-divider" />
+          <nav className="sidebar-nav">
+            <button
+              className="menu-item"
+              onClick={() => {
+                setSidebarOpen(false)
+                setFeedbackOpen(true)
+              }}
+            >
+              <img className="menu-icon" src={feedbackIcon} alt="" aria-hidden="true" />
+              <span>Feedback</span>
+            </button>
 
-          <button
-            className="menu-item menu-item-danger"
-            onClick={() => {
-              setDropdownOpen(false)
-              logout()
-            }}
-          >
-            <img className="menu-icon" src={logoutIcon} alt="" aria-hidden="true" />
-            <span>Logout</span>
-          </button>
-        </div>
+            <button className="menu-item" onClick={() => setSidebarOpen(false)}>
+              <img className="menu-icon" src={settingsIcon} alt="" aria-hidden="true" />
+              <span>Settings (soon)</span>
+            </button>
+
+            <div className="menu-divider" />
+
+            <button
+              className="menu-item menu-item-danger"
+              onClick={() => {
+                setSidebarOpen(false)
+                logout()
+              }}
+            >
+              <img className="menu-icon" src={logoutIcon} alt="" aria-hidden="true" />
+              <span>Logout</span>
+            </button>
+          </nav>
+
+          <div className="sidebar-footer">
+            <div className="sidebar-footer-hint">
+              Tip: klik di area gelap untuk menutup sidebar.
+            </div>
+          </div>
+        </aside>
       </div>
 
       {/* Header */}
@@ -149,7 +178,6 @@ export default function Dashboard() {
 
       {/* Main Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-10 max-w-5xl w-full">
-        {/* Left: Feature cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
           <Link
             to="/chat"
@@ -182,7 +210,6 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Right: Todo Panel */}
         <div className="panel px-5 py-5">
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -199,17 +226,12 @@ export default function Dashboard() {
 
           <div className="space-y-2">
             {todos.map((t) => (
-              <div
-                className={`todo-row ${t.done ? 'is-done' : ''}`}
-                key={t.id}
-              >
+              <div className={`todo-row ${t.done ? 'is-done' : ''}`} key={t.id}>
                 <input
                   className="todo-checkbox"
                   type="checkbox"
                   checked={t.done}
-                  onChange={(e) =>
-                    updateTodo(t.id, { done: e.target.checked })
-                  }
+                  onChange={(e) => updateTodo(t.id, { done: e.target.checked })}
                 />
 
                 <input
@@ -250,12 +272,7 @@ export default function Dashboard() {
             if (e.target === e.currentTarget) setFeedbackOpen(false)
           }}
         >
-          <div
-            className="feedback-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Feedback"
-          >
+          <div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Feedback">
             <div className="feedback-title">
               <h3>Send Feedback</h3>
               <button
@@ -269,8 +286,7 @@ export default function Dashboard() {
             </div>
 
             <p className="feedback-subtitle">
-              Saran/bug apa pun boleh. Ini membantu “Study with Teto” jadi lebih
-              bagus.
+              Saran/bug apa pun boleh. Ini membantu “Study with Teto” jadi lebih bagus.
             </p>
 
             <textarea
