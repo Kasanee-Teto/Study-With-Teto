@@ -17,25 +17,33 @@ function writeSettings(next) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
 }
 
+function applyTheme(theme) {
+  const root = document.documentElement
+
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches
+    root.dataset.theme = prefersDark ? 'dark' : 'light'
+    return
+  }
+
+  root.dataset.theme = theme || 'light'
+}
+
 export default function Appearance() {
   const initial = useMemo(() => readSettings(), [])
 
-  const [theme, setTheme] = useState(initial.theme ?? 'light') // light | dark | system
-  const [bgBlur, setBgBlur] = useState(initial.bgBlur ?? 2) // px
-  const [overlayOpacity, setOverlayOpacity] = useState(initial.overlayOpacity ?? 0.55) // 0..1
+  const [theme, setTheme] = useState(initial.theme ?? 'light')
+  const [bgBlur, setBgBlur] = useState(initial.bgBlur ?? 2)
+  const [overlayOpacity, setOverlayOpacity] = useState(initial.overlayOpacity ?? 0.55)
 
   useEffect(() => {
-    const next = {
-      ...readSettings(),
-      theme,
-      bgBlur,
-      overlayOpacity,
-    }
+    const next = { ...readSettings(), theme, bgBlur, overlayOpacity }
     writeSettings(next)
 
     // apply live
+    applyTheme(theme)
+
     const root = document.documentElement
-    root.dataset.theme = theme
     root.style.setProperty('--teto-bg-blur', `${bgBlur}px`)
     root.style.setProperty('--teto-overlay-opacity', String(overlayOpacity))
   }, [theme, bgBlur, overlayOpacity])
@@ -45,7 +53,7 @@ export default function Appearance() {
       <div className="w-full max-w-4xl bg-white/85 backdrop-blur px-7 py-6 rounded-2xl shadow-md border border-pink-100">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-extrabold text-black m-0">Appearance</h2>
+            <h2 className="text-3xl font-extrabold !text-black m-0">Appearance</h2>
             <p className="text-sm text-gray-600 mt-2">
               Theme, background blur, dan overlay.
             </p>
@@ -60,7 +68,6 @@ export default function Appearance() {
         </div>
 
         <div className="mt-7 grid gap-4">
-          {/* THEME */}
           <section className="appearance-card">
             <div className="appearance-card-head">
               <h3 className="appearance-title">Theme</h3>
@@ -81,11 +88,10 @@ export default function Appearance() {
             </div>
 
             <div className="appearance-help">
-              System = ikut theme OS (kalau kamu implement nanti).
+              System = ikut theme OS (otomatis).
             </div>
           </section>
 
-          {/* BLUR */}
           <section className="appearance-card">
             <div className="appearance-card-head">
               <h3 className="appearance-title">Background blur</h3>
@@ -105,7 +111,6 @@ export default function Appearance() {
             <div className="appearance-help">0 = tajam, 10 = blur banget.</div>
           </section>
 
-          {/* OPACITY */}
           <section className="appearance-card">
             <div className="appearance-card-head">
               <h3 className="appearance-title">Overlay opacity</h3>

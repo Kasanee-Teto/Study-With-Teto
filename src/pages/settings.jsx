@@ -26,25 +26,22 @@ export default function Settings() {
 
           <Link
             to="/dashboard"
-            className="settings-back-btn px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
+            className="settings-back-btn px-4 py-2 rounded-xl rounded-xl text-gray-800"
           >
             ← Back
           </Link>
         </div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link
-                to="/settings/appearance"
-                className="rounded-2xl border border-pink-100 bg-white/70 p-4 block cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-lg"
-                >
-                <h3 className="!font-bold !text-black">Appearance</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                    Theme, accent color, background blur.
-                </p>
-            </Link>
+          <Link to="/settings/appearance" className="settings-card">
+            <h3 className="!font-bold !text-black">Appearance</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Theme, accent color, background blur.
+            </p>
+          </Link>
 
           <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
-            <h3 className="font-bold text-gray-800">Chat</h3>
+            <h3 className="!font-bold !text-black">Chat</h3>
             <p className="text-sm text-gray-600 mt-1">
               Language, response length, tone (soon).
             </p>
@@ -53,10 +50,8 @@ export default function Settings() {
           <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-gray-800">Notifications</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  Teto misses you reminder
-                </p>
+                <h3 className="!font-bold !text-black">Notifications</h3>
+                <p className="text-sm text-gray-600 mt-1">Teto misses you reminder</p>
               </div>
 
               <button
@@ -65,8 +60,6 @@ export default function Settings() {
                 className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                   notificationsEnabled ? 'bg-pink-500' : 'bg-gray-300'
                 }`}
-                aria-pressed={notificationsEnabled}
-                aria-label="Toggle notifications"
               >
                 <span
                   className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -77,15 +70,12 @@ export default function Settings() {
             </div>
           </div>
 
-          <Link
-                to="/settings/privacy"
-                className="rounded-2xl border border-pink-100 bg-white/70 p-4 block cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-lg"
-                >
-                <h3 className="!font-bold !text-black">Privacy & Data</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                    Export data, analytics toggle.
-                </p>
-            </Link>
+          <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
+            <h3 className="font-bold text-gray-800">Privacy</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Export data, analytics toggle (soon).
+            </p>
+          </div>
         </div>
       </div>
     </div>

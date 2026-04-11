@@ -9,6 +9,32 @@
   --color-border-subtle: rgba(255, 255, 255, 0.06);
 }
 
+:root {
+  /* base */
+  --teto-page-bg: #0b0b10;
+  --teto-surface: rgba(255, 255, 255, 0.85);
+  --teto-surface-2: rgba(255, 255, 255, 0.72);
+  --teto-border: rgba(255, 170, 210, 0.35);
+  --teto-text: rgba(17, 24, 39, 0.9);
+  --teto-text-muted: rgba(17, 24, 39, 0.6);
+
+  /* accent */
+  --teto-accent: #fb73b3;
+
+  /* already used by dashboard overlay */
+  --teto-bg-blur: 2px;
+  --teto-overlay-opacity: 0.55;
+}
+
+:root[data-theme='dark'] {
+  --teto-page-bg: #07070c;
+  --teto-surface: rgba(18, 18, 28, 0.72);
+  --teto-surface-2: rgba(18, 18, 28, 0.6);
+  --teto-border: rgba(251, 115, 179, 0.22);
+  --teto-text: rgba(255, 255, 255, 0.9);
+  --teto-text-muted: rgba(255, 255, 255, 0.65);
+}
+
 @layer components {
   .chat-panel {
     @apply h-full min-h-[100svh];
