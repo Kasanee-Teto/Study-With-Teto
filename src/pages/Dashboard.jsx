@@ -121,7 +121,7 @@ export default function Dashboard() {
           </div>
 
           <div className="topnav-center">
-            <div className="topnav-logo-text">KASANE TETO</div>
+            <img className="h-20" src="src/assets/Logo.webp" alt="KASANE TETO" />
           </div>
 
           <div className="topnav-right">

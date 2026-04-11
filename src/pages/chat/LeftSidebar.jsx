@@ -17,10 +17,10 @@ export default function LeftSidebar({
   return (
     <aside className="chat-panel border-r border-white/10 bg-bg-panel">
 
-      <div className="border-b border-white/10 p-1">
+      <div className="border-b border-white/10 pt-2">
         <Link to="/dashboard" >
           <img 
-            className="w-11 h-11 object-cover rounded-full border-1 border-white/80 padding-1 mx-auto mb-4" 
+            className="w-11 h-11 object-cover rounded-full border-1 border-white/80 mx-auto mb-4" 
             src="src/assets/teto-teach-profile.jpeg" 
             alt="Teto Profile Image"
           />

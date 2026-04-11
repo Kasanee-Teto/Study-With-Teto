@@ -36,7 +36,6 @@ export default function Chat() {
   const [search, setSearch] = useState('')
   const [leftOpen, setLeftOpen] = useState(false)
   const [rightOpen, setRightOpen] = useState(false)
-  const [isSpeaking, setIsSpeaking] = useState(false)
 
   const currentMessages = useMemo(
     () => messagesBySessionId[currentSessionId] || [],
@@ -137,40 +136,6 @@ export default function Chat() {
     }
   }
 
-  function handleSpeak(text) {
-    if (!text.trim() || !window.speechSynthesis) return
-
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel()
-
-    const utterance = new SpeechSynthesisUtterance(text)
-
-    // Get available voices and select a female voice
-    const voices = window.speechSynthesis.getVoices()
-    const femaleVoice =
-      voices.find((voice) =>
-        voice.name.includes('Female') ||
-        voice.name.includes('female') ||
-        voice.name.includes('Woman') ||
-        voice.name.includes('woman') ||
-        voice.name.includes('Google US English Female')
-      ) || voices.find((voice) => voice.name.includes('Google'))
-
-    if (femaleVoice) {
-      utterance.voice = femaleVoice
-    }
-
-    utterance.volume = 1
-    utterance.rate = 1
-    utterance.pitch = 1
-
-    utterance.onstart = () => setIsSpeaking(true)
-    utterance.onend = () => setIsSpeaking(false)
-    utterance.onerror = () => setIsSpeaking(false)
-
-    window.speechSynthesis.speak(utterance)
-  }
-
   async function handleSend() {
     if (!currentSessionId || busy || !input.trim() || authError) return
     const messageText = input.trim()
@@ -260,7 +225,7 @@ export default function Chat() {
       <div className="grid h-full min-h-0 grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
         <div className="hidden md:block min-h-0 overflow-hidden">{leftSidebar}</div>
 
-        <div className="min-h-0 overflow-hidden">
+      <div className="min-h-0 overflow-hidden">
           <ChatMain
             title={title}
             messages={renderMessages}
@@ -272,10 +237,8 @@ export default function Chat() {
             disabled={blocked}
             onOpenLeftDrawer={() => setLeftOpen(true)}
             onOpenRightDrawer={() => setRightOpen(true)}
-            onSpeak={handleSpeak}
-            isSpeaking={isSpeaking}
           />
-        </div>
+      </div>
 
         <div className="hidden lg:block min-h-0 overflow-hidden">{rightPanel}</div>
       </div>
