@@ -5,7 +5,8 @@ import {
   createSession,
   listMessages,
   listSessions,
-  sendMessage
+  sendMessage,
+  updateSessionTitle
 } from '../services/chatService'
 import LeftSidebar from './chat/LeftSidebar'
 import ChatMain from './chat/ChatMain'
@@ -14,13 +15,12 @@ import MobileDrawers from './chat/MobileDrawers'
 
 const LAST_SESSION_STORAGE_KEY = 'chat:lastSessionId'
 
-/**
- * How to extend:
- * - Add right-panel setting: extend RightPanel and include value in sendMessage payload.
- * - Change theme tokens: update @theme colors in src/index.css.
- * - Add message pagination: update listMessages(sessionId, limit) and load more on scroll.
- * - Add streaming responses: replace aiService.generateReply with stream API and append chunks.
- */
+function buildSessionTitleFromText(text) {
+  const clean = String(text || '').replace(/\s+/g, ' ').trim()
+  if (!clean) return 'New chat'
+  return clean.slice(0, 50)
+}
+
 export default function Chat() {
   const [appUser, setAppUser] = useState(null)
   const [authReady, setAuthReady] = useState(false)
@@ -169,6 +169,27 @@ export default function Chat() {
           [currentSessionId]: [...withoutTemp, userMessage, assistantMessage]
         }
       })
+
+      const currentSession = sessions.find((s) => s.id === currentSessionId)
+      const shouldRetitle = !currentSession?.title || currentSession.title === 'New chat'
+      if (shouldRetitle) {
+        const nextTitle = buildSessionTitleFromText(messageText)
+        try {
+          const updated = await updateSessionTitle(currentSessionId, nextTitle)
+          setSessions((prev) => {
+              const next = prev.map((s) =>
+                s.id === currentSessionId
+                  ? { ...s, title: updated.title, updated_at: updated.updated_at || s.updated_at }
+                  : s
+              )
+              // optional: keep most recent on top
+              next.sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at))
+              return next
+            })
+        } catch (titleErr) {
+          console.error(titleErr) // non-blocking
+        }
+      }
     } catch (sendErr) {
       console.error(sendErr)
       setMessagesBySessionId((prev) => {
@@ -225,7 +246,7 @@ export default function Chat() {
       <div className="grid h-full min-h-0 grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
         <div className="hidden md:block min-h-0 overflow-hidden">{leftSidebar}</div>
 
-      <div className="min-h-0 overflow-hidden">
+        <div className="min-h-0 overflow-hidden">
           <ChatMain
             title={title}
             messages={renderMessages}
@@ -238,7 +259,7 @@ export default function Chat() {
             onOpenLeftDrawer={() => setLeftOpen(true)}
             onOpenRightDrawer={() => setRightOpen(true)}
           />
-      </div>
+        </div>
 
         <div className="hidden lg:block min-h-0 overflow-hidden">{rightPanel}</div>
       </div>

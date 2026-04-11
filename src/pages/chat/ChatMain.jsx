@@ -317,7 +317,7 @@ export default function ChatMain({
             alt="Teto Profile Image"
           />
           <div className="flex items-center gap-2 justify-center">
-            <h2 className="text-base font-semibold text-text-primary">{title}</h2>
+            <h2 className="text-base font-semibold !text-white">{title || 'New chat'}</h2>
           </div>
           <p className="chat-subtle text-xs">Teto will help you with your studies</p>
         </div>
