@@ -108,7 +108,7 @@ export default function Dashboard() {
           aria-expanded={sidebarOpen}
           aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
         >
-          <span className="hamburger-icon">{sidebarOpen ? '×' : '☰'}</span>
+          <span className="hamburger-icon">{sidebarOpen ? '✖' : '☰'}</span>
         </button>
       </div>
 
@@ -178,11 +178,14 @@ export default function Dashboard() {
               <span>Feedback</span>
             </button>
 
-            <button className="menu-item" onClick={() => setSidebarOpen(false)}>
+            <Link
+              to="/settings"
+              className="menu-item"
+              onClick={() => setSidebarOpen(false)}
+            >
               <img className="menu-icon" src={settingsIcon} alt="" aria-hidden="true" />
-              <span>Settings (soon)</span>
-            </button>
-
+              <span>Settings</span>
+            </Link>
             <div className="menu-divider" />
 
             <button
