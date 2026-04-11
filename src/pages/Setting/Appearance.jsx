@@ -1,583 +1,141 @@
-/* Background image layer (dashboard only) */
-.dashboard::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: url(../assets/teto2.jpg) center / cover no-repeat;
-  z-index: -2;
-  pointer-events: none;
-}
 
-/* NOTE:
-   .dashboard::after overlay REMOVED
-   because overlay + blur is now GLOBAL (body::before in index.css)
-*/
+import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import '../settings.css'
 
-/* Optional: bikin semua card terasa konsisten */
-.dashboard .card,
-.dashboard .panel {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 170, 210, 0.35);
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
-}
+const STORAGE_KEY = 'teto_settings_v1'
 
-/* Card images */
-.card-chat .card-image {
-  background-image: url(../assets/chat.jpg);
-  background-size: cover;
-  background-position: center;
-}
-
-.card-chess .card-image {
-  background-image: url(../assets/chess.jpg);
-  background-size: cover;
-  background-position: center;
-}
-
-/* ===== Top Nav (full width, responsive, tidak nabrak hamburger) ===== */
-.topnav {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-
-  width: 100%;
-  margin-bottom: 18px;
-
-  padding: 10px 12px;
-}
-
-.topnav-inner {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  min-height: 64px;
-  border-radius: 18px;
-
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12px;
-
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 170, 210, 0.35);
-  box-shadow: 0 12px 30px rgba(40, 20, 60, 0.12);
-  backdrop-filter: blur(6px);
-
-  padding: 10px 16px 10px 76px;
-}
-
-.topnav-left {
-  justify-self: start;
-  line-height: 1.1;
-}
-
-.topnav-title {
-  font-weight: 900;
-  font-size: 16px;
-  color: rgba(17, 24, 39, 0.82);
-}
-
-.topnav-subtitle {
-  margin-top: 4px;
-  font-size: 12px;
-  color: rgba(17, 24, 39, 0.6);
-}
-
-.topnav-center {
-  justify-self: center;
-  display: grid;
-  place-items: center;
-  min-width: 0;
-}
-
-.topnav-logo-text {
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  color: rgba(17, 24, 39, 0.78);
-  font-size: 13px;
-  text-transform: uppercase;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.topnav-right {
-  justify-self: end;
-  text-align: right;
-  padding-right: 6px;
-}
-
-.topnav-date {
-  font-size: 12px;
-  color: rgba(17, 24, 39, 0.65);
-}
-
-.topnav-time {
-  font-size: 14px;
-  font-weight: 900;
-  color: rgba(17, 24, 39, 0.8);
-  margin-top: 4px;
-  font-variant-numeric: tabular-nums;
-}
-
-@media (max-width: 520px) {
-  .topnav-inner {
-    padding-left: 72px;
-    gap: 8px;
-  }
-  .topnav-date {
-    display: none;
+function readSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
   }
 }
 
-/* Hamburger button */
-.hamburger-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 170, 210, 0.5);
-  background: rgba(255, 214, 235, 0.75);
-  box-shadow: 0 10px 25px rgba(40, 20, 60, 0.15);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
+function writeSettings(next) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
 }
 
-.hamburger-icon {
-  font-size: 18px;
-  color: #111827;
-  line-height: 1;
+function applyTheme(theme) {
+  const root = document.documentElement
+
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches
+    root.dataset.theme = prefersDark ? 'dark' : 'light'
+    return
+  }
+
+  root.dataset.theme = theme || 'light'
 }
 
-/* Sidebar overlay + panel */
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 10, 20, 0.35);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 55;
-}
+export default function Appearance() {
+  const initial = useMemo(() => readSettings(), [])
 
-.sidebar-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
+  const [theme, setTheme] = useState(initial.theme ?? 'light')
+  const [bgBlur, setBgBlur] = useState(initial.bgBlur ?? 2)
+  const [overlayOpacity, setOverlayOpacity] = useState(initial.overlayOpacity ?? 0.55)
 
-.sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: min(360px, 90vw);
-  background: rgba(255, 255, 255, 0.95);
-  border-right: 1px solid rgba(255, 170, 210, 0.35);
-  box-shadow: 0 18px 60px rgba(40, 20, 60, 0.22);
-  transform: translateX(-102%);
-  transition: transform 0.22s ease;
-  display: flex;
-  flex-direction: column;
-}
+  useEffect(() => {
+    const next = { ...readSettings(), theme, bgBlur, overlayOpacity }
+    writeSettings(next)
 
-.sidebar.open {
-  transform: translateX(0);
-}
+    // apply live
+    applyTheme(theme)
 
-/* Header dibuat aman dari tombol X (kasih ruang kiri + atas) */
-.sidebar-header {
-  padding: 100px 16px 18px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
+    const root = document.documentElement
+    root.style.setProperty('--teto-bg-blur', `${bgBlur}px`)
+    root.style.setProperty('--teto-overlay-opacity', String(overlayOpacity))
+  }, [theme, bgBlur, overlayOpacity])
 
-/* Profile block */
-.sidebar-profile {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
+  return (
+    <div className="min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
+      <div className="w-full max-w-4xl bg-white/85 backdrop-blur px-7 py-6 rounded-2xl shadow-md border border-pink-100">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-extrabold !text-black m-0">Appearance</h2>
+            <p className="text-sm text-gray-600 mt-2">
+              Theme, background blur, dan overlay.
+            </p>
+          </div>
 
-.sidebar-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 214, 235, 0.95),
-    rgba(214, 236, 255, 0.95)
-  );
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  color: rgba(17, 24, 39, 0.85);
-  flex: 0 0 auto;
-}
+          <Link
+            to="/settings"
+            className="settings-back-btn px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
+          >
+            ← Back
+          </Link>
+        </div>
 
-.sidebar-profile-text {
-  min-width: 0;
-  padding-top: 2px;
-}
+        <div className="mt-7 grid gap-4">
+          <section className="appearance-card">
+            <div className="appearance-card-head">
+              <h3 className="appearance-title">Theme</h3>
+              <span className="appearance-badge">{theme.toUpperCase()}</span>
+            </div>
 
-.sidebar-name {
-  font-weight: 900;
-  color: #111827;
-  font-size: 16px;
-  line-height: 1.2;
-}
+            <div className="appearance-chip-row">
+              {['light', 'dark', 'system'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={`appearance-chip ${theme === t ? 'is-active' : ''}`}
+                  onClick={() => setTheme(t)}
+                >
+                  {t.toUpperCase()}
+                </button>
+              ))}
+            </div>
 
-.sidebar-email {
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(17, 24, 39, 0.6);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+            <div className="appearance-help">
+              System = ikut theme OS (otomatis).
+            </div>
+          </section>
 
-/* Nav */
-.sidebar-nav {
-  padding: 26px 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+          <section className="appearance-card">
+            <div className="appearance-card-head">
+              <h3 className="appearance-title">Background blur</h3>
+              <span className="appearance-value">{bgBlur}px</span>
+            </div>
 
-/* Menu item */
-.menu-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 14px;
-  border-radius: 16px;
+            <input
+              className="appearance-range"
+              type="range"
+              min={0}
+              max={10}
+              step={1}
+              value={bgBlur}
+              onChange={(e) => setBgBlur(Number(e.target.value))}
+            />
 
-  background: rgb(177, 177, 177);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  text-align: left;
-  cursor: pointer;
+            <div className="appearance-help">0 = tajam, 10 = blur banget.</div>
+          </section>
 
-  color: #000000;
-  font-weight: 800;
+          <section className="appearance-card">
+            <div className="appearance-card-head">
+              <h3 className="appearance-title">Overlay opacity</h3>
+              <span className="appearance-value">
+                {Math.round(overlayOpacity * 100)}%
+              </span>
+            </div>
 
-  transition: background 0.15s ease, transform 0.15s ease;
-}
+            <input
+              className="appearance-range"
+              type="range"
+              min={0.2}
+              max={0.9}
+              step={0.05}
+              value={overlayOpacity}
+              onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+            />
 
-.menu-item:hover {
-  background: rgb(176, 117, 117);
-  transform: translateY(-1px);
-}
-
-.menu-item span {
-  display: block;
-  line-height: 1.2;
-  white-space: normal;
-}
-
-.menu-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  flex: 0 0 auto;
-}
-
-.menu-divider {
-  height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-  margin: 10px 6px;
-  border-radius: 999px;
-}
-
-.menu-item-danger {
-  color: #000000;
-}
-
-.menu-item-danger:hover {
-  background: rgb(176, 117, 117);
-}
-
-/* Footer */
-.sidebar-footer {
-  margin-top: auto;
-  padding: 14px 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.sidebar-footer-hint {
-  font-size: 12px;
-  color: rgba(17, 24, 39, 0.65);
-}
-
-/* Todo rows */
-.todo-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.todo-row:hover {
-  background: rgba(255, 214, 235, 0.35);
-}
-
-.todo-row.is-done .todo-input {
-  text-decoration: line-through;
-  opacity: 0.55;
-}
-
-.todo-checkbox {
-  width: 18px;
-  height: 18px;
-  accent-color: #fb73b3;
-  flex: 0 0 auto;
-}
-
-.todo-input {
-  width: 100%;
-  min-width: 0;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #374151;
-}
-
-.todo-input::placeholder {
-  color: rgba(55, 65, 81, 0.55);
-}
-
-.todo-add {
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(255, 214, 235, 0.5);
-  border: 1px dashed rgba(251, 115, 179, 0.45);
-  color: #374151;
-  transition: background 0.15s ease, transform 0.15s ease;
-  cursor: pointer;
-}
-
-.todo-add:hover {
-  background: rgba(255, 214, 235, 0.7);
-  transform: translateY(-1px);
-}
-
-.todo-delete {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  border: 1px solid rgba(251, 115, 179, 0.35);
-  background: rgba(255, 255, 255, 0.7);
-  color: rgba(31, 41, 55, 0.75);
-  font-size: 18px;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
-  opacity: 0;
-  flex: 0 0 auto;
-  cursor: pointer;
-}
-
-.todo-row:hover .todo-delete {
-  opacity: 1;
-}
-
-.todo-delete:hover {
-  background: rgba(255, 214, 235, 0.8);
-  transform: translateY(-1px);
-}
-
-/* ===== Scroll hanya kalau task > 3 ===== */
-.todo-list {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.todo-list.is-scroll {
-  max-height: 180px;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-.todo-list.is-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-.todo-list.is-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
-  border-radius: 999px;
-}
-.todo-list.is-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* ===== Fix: Tip selalu di pojok kiri bawah panel ===== */
-.todo-panel {
-  position: relative;
-  padding-bottom: 48px; /* ruang untuk tip */
-}
-
-.todo-tip {
-  position: absolute;
-  left: 20px;
-  bottom: 16px;
-}
-
-/* Feedback modal */
-.feedback-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 10, 20, 0.35);
-  backdrop-filter: blur(2px);
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-}
-
-.feedback-modal {
-  width: min(560px, 92vw);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 170, 210, 0.45);
-  box-shadow: 0 18px 50px rgba(40, 20, 60, 0.25);
-  padding: 16px 16px 14px;
-}
-
-.feedback-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.feedback-title h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.feedback-close {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  border: 1px solid rgba(251, 115, 179, 0.25);
-  background: rgba(255, 214, 235, 0.4);
-  color: #111827;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.feedback-close:hover {
-  background: rgba(255, 214, 235, 0.65);
-}
-
-.feedback-subtitle {
-  margin: 8px 0 10px;
-  font-size: 13px;
-  color: rgba(31, 41, 55, 0.75);
-}
-
-.feedback-textarea {
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(251, 115, 179, 0.35);
-  background: rgba(255, 255, 255, 0.85);
-  padding: 12px 12px;
-  outline: none;
-  resize: vertical;
-  color: #111827;
-}
-
-.feedback-textarea:focus {
-  box-shadow: 0 0 0 3px rgba(251, 115, 179, 0.22);
-}
-
-.feedback-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.feedback-cancel,
-.feedback-send {
-  border-radius: 12px;
-  padding: 10px 14px;
-  border: 1px solid rgba(251, 115, 179, 0.35);
-  background: rgba(255, 255, 255, 0.8);
-  color: #111827;
-  cursor: pointer;
-}
-
-.feedback-send {
-  background: rgba(255, 214, 235, 0.75);
-}
-
-.feedback-send:disabled,
-.feedback-cancel:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.feedback-error {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #dc2626;
-}
-
-.feedback-success {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #16a34a;
-}
-
-/* ===== DARK THEME OVERRIDES (quick win) ===== */
-:root[data-theme='dark'] .topnav-inner {
-  background: var(--teto-surface);
-  border-color: var(--teto-border);
-}
-
-:root[data-theme='dark'] .topnav-title,
-:root[data-theme='dark'] .topnav-logo-text,
-:root[data-theme='dark'] .topnav-time {
-  color: var(--teto-text);
-}
-
-:root[data-theme='dark'] .topnav-subtitle,
-:root[data-theme='dark'] .topnav-date {
-  color: var(--teto-text-muted);
-}
-
-:root[data-theme='dark'] .card,
-:root[data-theme='dark'] .panel {
-  background: var(--teto-surface-2) !important;
-  border-color: var(--teto-border) !important;
-  color: var(--teto-text) !important;
-}
-
-:root[data-theme='dark'] .card-content h3,
-:root[data-theme='dark'] .panel h3,
-:root[data-theme='dark'] .card-content p,
-:root[data-theme='dark'] .todo-tip,
-:root[data-theme='dark'] .panel .text-gray-600,
-:root[data-theme='dark'] .panel .text-gray-500 {
-  color: var(--teto-text-muted) !important;
-}
-
-:root[data-theme='dark'] .todo-input {
-  background: rgba(0, 0, 0, 0.2) !important;
-  color: var(--teto-text) !important;
-  border-color: var(--teto-border) !important;
-}
-
-:root[data-theme='dark'] .todo-input::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+            <div className="appearance-help">
+              Makin besar = background makin “ketutup”.
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
 }
