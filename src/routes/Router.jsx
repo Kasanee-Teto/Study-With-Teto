@@ -7,6 +7,7 @@ import Chess from '../pages/Chess.jsx'
 import SignUpPage from '../pages/SignUp.jsx'
 import Settings from '../pages/settings.jsx'
 import AppearanceSettings from '../pages/Setting/Appearance.jsx'
+import PrivacySettings from '../pages/Setting/Privacy.jsx'
 
 function NotFound() {
   return (
@@ -62,10 +63,19 @@ export default function Router() {
         />
 
         <Route
-        path="/Settings/Appearance"
+        path="/settings/appearance"
         element={
           <RequireAuth>
             <AppearanceSettings />
+          </RequireAuth>
+        }
+        />
+
+        <Route
+        path="/settings/privacy"
+        element={
+          <RequireAuth>
+            <PrivacySettings />
           </RequireAuth>
         }
         />

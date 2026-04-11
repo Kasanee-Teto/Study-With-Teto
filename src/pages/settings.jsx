@@ -77,12 +77,15 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
-            <h3 className="font-bold text-gray-800">Privacy</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Export data, analytics toggle (soon).
-            </p>
-          </div>
+          <Link
+                to="/settings/privacy"
+                className="rounded-2xl border border-pink-100 bg-white/70 p-4 block cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-lg"
+                >
+                <h3 className="!font-bold !text-black">Privacy & Data</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                    Export data, analytics toggle.
+                </p>
+            </Link>
         </div>
       </div>
     </div>
