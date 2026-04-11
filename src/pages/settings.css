@@ -1,0 +1,18 @@
+.settings-back-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.settings-back-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 55, 55, 0.859);
+  box-shadow: 0 10px 25px rgba(40, 20, 60, 0.12);
+}
+
+.settings-back-btn:active {
+  transform: translateY(0px);
+}
+
+.settings-back-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(251, 115, 179, 0.25), 0 10px 25px rgba(40, 20, 60, 0.12);
+}

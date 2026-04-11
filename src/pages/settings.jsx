@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import './settings.css';
 
 export default function Settings() {
   return (
@@ -14,7 +15,7 @@ export default function Settings() {
 
           <Link
             to="/dashboard"
-            className="px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
+            className="settings-back-btn px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
           >
             ← Back
           </Link>
