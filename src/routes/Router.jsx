@@ -6,6 +6,7 @@ import Chat from '../pages/Chat.jsx'
 import Chess from '../pages/Chess.jsx'
 import SignUpPage from '../pages/SignUp.jsx'
 import Settings from '../pages/settings.jsx'
+import AppearanceSettings from '../pages/Setting/Appearance.jsx'
 
 function NotFound() {
   return (
@@ -58,6 +59,15 @@ export default function Router() {
               <Settings />
             </RequireAuth>
           }
+        />
+
+        <Route
+        path="/Settings/Appearance"
+        element={
+          <RequireAuth>
+            <AppearanceSettings />
+          </RequireAuth>
+        }
         />
 
         <Route path="*" element={<NotFound />} />

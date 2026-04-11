@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { notificationService } from '../services/notificationServices'
+import './settings.css'
 
 export default function Settings() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(
@@ -9,8 +10,9 @@ export default function Settings() {
 
   const handleNotificationToggle = () => {
     notificationService.toggle()
-    setNotificationsEnabled(!notificationsEnabled)
+    setNotificationsEnabled((v) => !v)
   }
+
   return (
     <div className="min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
       <div className="w-full max-w-4xl bg-white/85 backdrop-blur px-7 py-5 rounded-2xl shadow-md border border-pink-100">
@@ -24,19 +26,22 @@ export default function Settings() {
 
           <Link
             to="/dashboard"
-            className="px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
+            className="settings-back-btn px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
           >
             ← Back
           </Link>
         </div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
-            <h3 className="font-bold text-gray-800">Appearance</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Theme, accent color, background blur (soon).
-            </p>
-          </div>
+          <Link
+                to="/settings/appearance"
+                className="rounded-2xl border border-pink-100 bg-white/70 p-4 block cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-lg"
+                >
+                <h3 className="!font-bold !text-black">Appearance</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                    Theme, accent color, background blur.
+                </p>
+            </Link>
 
           <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
             <h3 className="font-bold text-gray-800">Chat</h3>
@@ -53,11 +58,15 @@ export default function Settings() {
                   Teto misses you reminder
                 </p>
               </div>
+
               <button
+                type="button"
                 onClick={handleNotificationToggle}
                 className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                   notificationsEnabled ? 'bg-pink-500' : 'bg-gray-300'
                 }`}
+                aria-pressed={notificationsEnabled}
+                aria-label="Toggle notifications"
               >
                 <span
                   className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
