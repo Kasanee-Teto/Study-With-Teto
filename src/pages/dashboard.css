@@ -548,3 +548,49 @@
   font-size: 12px;
   color: #16a34a;
 }
+
+/* ===== DARK THEME OVERRIDES (quick win) ===== */
+:root[data-theme='dark'] .topnav-inner {
+  background: var(--teto-surface);
+  border-color: var(--teto-border);
+}
+
+:root[data-theme='dark'] .topnav-title,
+:root[data-theme='dark'] .topnav-logo-text,
+:root[data-theme='dark'] .topnav-time {
+  color: var(--teto-text);
+}
+
+:root[data-theme='dark'] .topnav-subtitle,
+:root[data-theme='dark'] .topnav-date {
+  color: var(--teto-text-muted);
+}
+
+/* cards / panels */
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] .panel {
+  background: var(--teto-surface-2) !important;
+  border-color: var(--teto-border) !important;
+  color: var(--teto-text) !important;
+}
+
+/* card text inside */
+:root[data-theme='dark'] .card-content h3,
+:root[data-theme='dark'] .panel h3,
+:root[data-theme='dark'] .card-content p,
+:root[data-theme='dark'] .todo-tip,
+:root[data-theme='dark'] .panel .text-gray-600,
+:root[data-theme='dark'] .panel .text-gray-500 {
+  color: var(--teto-text-muted) !important;
+}
+
+/* inputs */
+:root[data-theme='dark'] .todo-input {
+  background: rgba(0, 0, 0, 0.2) !important;
+  color: var(--teto-text) !important;
+  border-color: var(--teto-border) !important;
+}
+
+:root[data-theme='dark'] .todo-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}

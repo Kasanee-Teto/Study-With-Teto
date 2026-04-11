@@ -24,6 +24,15 @@
   /* already used by dashboard overlay */
   --teto-bg-blur: 2px;
   --teto-overlay-opacity: 0.55;
+
+  /* mapping untuk Tailwind custom tokens (Chat) */
+  --bg-main: var(--teto-page-bg);
+  --text-primary: var(--teto-text);
+  --text-muted: var(--teto-text-muted);
+
+  --surface: var(--teto-surface);
+  --surface-2: var(--teto-surface-2);
+  --border: var(--teto-border);
 }
 
 :root[data-theme='dark'] {
@@ -33,6 +42,15 @@
   --teto-border: rgba(251, 115, 179, 0.22);
   --teto-text: rgba(255, 255, 255, 0.9);
   --teto-text-muted: rgba(255, 255, 255, 0.65);
+
+    /* tetap mapping ke tokens dark */
+  --bg-main: var(--teto-page-bg);
+  --text-primary: var(--teto-text);
+  --text-muted: var(--teto-text-muted);
+
+  --surface: var(--teto-surface);
+  --surface-2: var(--teto-surface-2);
+  --border: var(--teto-border);
 }
 
 @layer components {

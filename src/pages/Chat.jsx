@@ -79,10 +79,7 @@ export default function Chat() {
       }
 
       const savedSessionId = localStorage.getItem(LAST_SESSION_STORAGE_KEY)
-      const targetId =
-        preferredId ||
-        savedSessionId ||
-        nextSessions[0]?.id
+      const targetId = preferredId || savedSessionId || nextSessions[0]?.id
 
       const stillExists = nextSessions.some((item) => item.id === targetId)
       const resolvedSessionId = stillExists ? targetId : nextSessions[0]?.id
@@ -142,34 +139,35 @@ export default function Chat() {
 
   function handleSpeak(text) {
     if (!text.trim() || !window.speechSynthesis) return
-    
+
     // Cancel any ongoing speech
     window.speechSynthesis.cancel()
-    
+
     const utterance = new SpeechSynthesisUtterance(text)
-    
+
     // Get available voices and select a female voice
     const voices = window.speechSynthesis.getVoices()
-    const femaleVoice = voices.find(voice => 
-      voice.name.includes('Female') || 
-      voice.name.includes('female') ||
-      voice.name.includes('Woman') ||
-      voice.name.includes('woman') ||
-      voice.name.includes('Google US English Female')
-    ) || voices.find(voice => voice.name.includes('Google'))
-    
+    const femaleVoice =
+      voices.find((voice) =>
+        voice.name.includes('Female') ||
+        voice.name.includes('female') ||
+        voice.name.includes('Woman') ||
+        voice.name.includes('woman') ||
+        voice.name.includes('Google US English Female')
+      ) || voices.find((voice) => voice.name.includes('Google'))
+
     if (femaleVoice) {
       utterance.voice = femaleVoice
     }
-    
+
     utterance.volume = 1
-    utterance.rate = 1  
+    utterance.rate = 1
     utterance.pitch = 1
-    
+
     utterance.onstart = () => setIsSpeaking(true)
     utterance.onend = () => setIsSpeaking(false)
     utterance.onerror = () => setIsSpeaking(false)
-    
+
     window.speechSynthesis.speak(utterance)
   }
 
@@ -193,7 +191,12 @@ export default function Chat() {
     }))
 
     try {
-      const { userMessage, assistantMessage } = await sendMessage(currentSessionId, messageText, currentMessages)
+      const { userMessage, assistantMessage } = await sendMessage(
+        currentSessionId,
+        messageText,
+        currentMessages
+      )
+
       setMessagesBySessionId((prev) => {
         const withoutTemp = (prev[currentSessionId] || []).filter((item) => item.id !== tempUserMessage.id)
         return {
@@ -249,39 +252,42 @@ export default function Chat() {
     [messagesLoading, currentMessages]
   )
 
-return (
-  <div className="h-[100dvh] overflow-hidden bg-bg-main text-text-primary">
-    <div className="grid h-full min-h-0 grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
-      <div className="hidden md:block min-h-0 overflow-hidden">{leftSidebar}</div>
+  return (
+    <div
+      className="h-[100dvh] overflow-hidden"
+      style={{ background: 'var(--teto-page-bg)', color: 'var(--teto-text)' }}
+    >
+      <div className="grid h-full min-h-0 grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px]">
+        <div className="hidden md:block min-h-0 overflow-hidden">{leftSidebar}</div>
 
-      <div className="min-h-0 overflow-hidden">
-        <ChatMain
-          title={title}
-          messages={renderMessages}
-          input={input}
-          onInputChange={setInput}
-          onSend={handleSend}
-          busy={busy || messagesLoading}
-          error={authError || error}
-          disabled={blocked}
-          onOpenLeftDrawer={() => setLeftOpen(true)}
-          onOpenRightDrawer={() => setRightOpen(true)}
-          onSpeak={handleSpeak}
-          isSpeaking={isSpeaking}
-        />
+        <div className="min-h-0 overflow-hidden">
+          <ChatMain
+            title={title}
+            messages={renderMessages}
+            input={input}
+            onInputChange={setInput}
+            onSend={handleSend}
+            busy={busy || messagesLoading}
+            error={authError || error}
+            disabled={blocked}
+            onOpenLeftDrawer={() => setLeftOpen(true)}
+            onOpenRightDrawer={() => setRightOpen(true)}
+            onSpeak={handleSpeak}
+            isSpeaking={isSpeaking}
+          />
+        </div>
+
+        <div className="hidden lg:block min-h-0 overflow-hidden">{rightPanel}</div>
       </div>
 
-      <div className="hidden lg:block min-h-0 overflow-hidden">{rightPanel}</div>
+      <MobileDrawers
+        leftOpen={leftOpen}
+        rightOpen={rightOpen}
+        closeLeft={() => setLeftOpen(false)}
+        closeRight={() => setRightOpen(false)}
+        leftContent={leftSidebar}
+        rightContent={rightPanel}
+      />
     </div>
-
-    <MobileDrawers
-      leftOpen={leftOpen}
-      rightOpen={rightOpen}
-      closeLeft={() => setLeftOpen(false)}
-      closeRight={() => setRightOpen(false)}
-      leftContent={leftSidebar}
-      rightContent={rightPanel}
-    />
-  </div>
-)
+  )
 }
