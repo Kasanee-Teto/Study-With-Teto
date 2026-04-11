@@ -70,12 +70,12 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
-            <h3 className="font-bold text-gray-800">Privacy</h3>
+          <Link to="/settings/privacy" className="settings-card">
+            <h3 className="!font-bold !text-black">Privacy</h3>
             <p className="text-sm text-gray-600 mt-1">
-              Export data, analytics toggle (soon).
+              Export data, analytics toggle.
             </p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
