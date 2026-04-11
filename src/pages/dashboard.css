@@ -1,4 +1,4 @@
-/* Background image layer */
+/* Background image layer (dashboard only) */
 .dashboard::before {
   content: '';
   position: fixed;
@@ -8,21 +8,11 @@
   pointer-events: none;
 }
 
-.dashboard::after {
-  content: '';
-  position: fixed;
-  inset: 0;
+/* IMPORTANT:
+   .dashboard::after overlay REMOVED.
+   Overlay + blur is now GLOBAL in src/index.css via body::before.
+*/
 
-  background: linear-gradient(
-    135deg,
-    rgba(255, 208, 232, var(--teto-overlay-opacity, 0.55)),
-    rgba(0, 0, 0, var(--teto-overlay-opacity, 0.55))
-  );
-
-  backdrop-filter: blur(var(--teto-bg-blur, 2px));
-  z-index: -1;
-  pointer-events: none;
-}
 /* Optional: bikin semua card terasa konsisten */
 .dashboard .card,
 .dashboard .panel {
