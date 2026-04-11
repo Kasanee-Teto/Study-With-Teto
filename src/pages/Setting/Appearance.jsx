@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from '../../i18n/config.jsx'
 import '../settings.css'
 
 const STORAGE_KEY = 'teto_settings_v1'
@@ -31,6 +32,7 @@ function applyTheme(theme) {
 }
 
 export default function Appearance() {
+  const { t } = useTranslation()
   const initial = useMemo(() => readSettings(), [])
 
   const [theme, setTheme] = useState(initial.theme ?? 'light')
@@ -54,9 +56,9 @@ export default function Appearance() {
       <div className="w-full max-w-4xl bg-white/85 backdrop-blur px-7 py-6 rounded-2xl shadow-md border border-pink-100">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-extrabold !text-black m-0">Appearance</h2>
+            <h2 className="text-3xl font-extrabold !text-black m-0">{t('appearance.pageTitle')}</h2>
             <p className="text-sm text-gray-600 mt-2">
-              Theme, background blur, dan overlay.
+              {t('appearance.pageSubtitle')}
             </p>
           </div>
 
@@ -64,38 +66,38 @@ export default function Appearance() {
             to="/settings"
             className="settings-back-btn px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
           >
-            ← Back
+            {t('appearance.back')}
           </Link>
         </div>
 
         <div className="mt-7 grid gap-4">
           <section className="appearance-card">
             <div className="appearance-card-head">
-              <h3 className="appearance-title">Theme</h3>
-              <span className="appearance-badge">{theme.toUpperCase()}</span>
+              <h3 className="appearance-title">{t('appearance.themeTitle')}</h3>
+              <span className="appearance-badge">{t(`appearance.theme${theme.charAt(0).toUpperCase()}${theme.slice(1)}`)}</span>
             </div>
 
             <div className="appearance-chip-row">
-              {['light', 'dark', 'system'].map((t) => (
+              {['light', 'dark', 'system'].map((t_val) => (
                 <button
-                  key={t}
+                  key={t_val}
                   type="button"
-                  className={`appearance-chip ${theme === t ? 'is-active' : ''}`}
-                  onClick={() => setTheme(t)}
+                  className={`appearance-chip ${theme === t_val ? 'is-active' : ''}`}
+                  onClick={() => setTheme(t_val)}
                 >
-                  {t.toUpperCase()}
+                  {t(`appearance.theme${t_val.charAt(0).toUpperCase()}${t_val.slice(1)}`)}
                 </button>
               ))}
             </div>
 
             <div className="appearance-help">
-              System = ikut theme OS (otomatis).
+              {t('appearance.themeHelp')}
             </div>
           </section>
 
           <section className="appearance-card">
             <div className="appearance-card-head">
-              <h3 className="appearance-title">Background blur</h3>
+              <h3 className="appearance-title">{t('appearance.bgBlurTitle')}</h3>
               <span className="appearance-value">{bgBlur}px</span>
             </div>
 
@@ -109,12 +111,12 @@ export default function Appearance() {
               onChange={(e) => setBgBlur(Number(e.target.value))}
             />
 
-            <div className="appearance-help">0 = tajam, 10 = blur banget.</div>
+            <div className="appearance-help">{t('appearance.bgBlurHelp')}</div>
           </section>
 
           <section className="appearance-card">
             <div className="appearance-card-head">
-              <h3 className="appearance-title">Overlay opacity</h3>
+              <h3 className="appearance-title">{t('appearance.overlayTitle')}</h3>
               <span className="appearance-value">
                 {Math.round(overlayOpacity * 100)}%
               </span>
@@ -131,7 +133,7 @@ export default function Appearance() {
             />
 
             <div className="appearance-help">
-              Makin besar = background makin “ketutup”.
+              {t('appearance.overlayHelp')}
             </div>
           </section>
         </div>

@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import Router from './routes/Router'
 import TetoNotification from './components/TetoNotification'
+import { I18nProvider } from './i18n/config.jsx'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -33,8 +34,10 @@ class ErrorBoundary extends Component {
 export default function App() {
   return (
     <ErrorBoundary>
-      <TetoNotification />
-      <Router />
+      <I18nProvider>
+        <TetoNotification />
+        <Router />
+      </I18nProvider>
     </ErrorBoundary>
   )
 }

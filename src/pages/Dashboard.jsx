@@ -2,12 +2,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useEffect, useMemo, useState } from 'react'
 import './dashboard.css'
+import { useTranslation } from '../i18n/config.jsx'
 
 import feedbackIcon from '../assets/feedback.png'
 import settingsIcon from '../assets/settings.png'
 import logoutIcon from '../assets/logout.png'
 
 export default function Dashboard() {
+  const { t, language } = useTranslation()
   const [user, setUser] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
@@ -36,8 +38,8 @@ export default function Dashboard() {
   }, [])
 
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
   }, [])
 
   async function logout() {
@@ -53,11 +55,11 @@ export default function Dashboard() {
   }
 
   function updateTodo(id, patch) {
-    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)))
+    setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, ...patch } : todo)))
   }
 
   function deleteTodo(id) {
-    setTodos((prev) => prev.filter((t) => t.id !== id))
+    setTodos((prev) => prev.filter((todo) => todo.id !== id))
   }
 
   async function submitFeedback() {
@@ -106,7 +108,7 @@ export default function Dashboard() {
           className="hamburger-btn"
           onClick={() => setSidebarOpen((v) => !v)}
           aria-expanded={sidebarOpen}
-          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+          aria-label={sidebarOpen ? t('dashboard.closeMenu') : t('dashboard.openMenu')}
         >
           <span className="hamburger-icon">{sidebarOpen ? '✖' : '☰'}</span>
         </button>
@@ -116,8 +118,8 @@ export default function Dashboard() {
       <header className="topnav">
         <div className="topnav-inner">
           <div className="topnav-left">
-            <div className="topnav-title">Dashboard</div>
-            <div className="topnav-subtitle">Hi, {username}</div>
+            <div className="topnav-title">{t('dashboard.title')}</div>
+            <div className="topnav-subtitle">{t('dashboard.greeting', { name: username })}</div>
           </div>
 
           <div className="topnav-center">
@@ -126,7 +128,7 @@ export default function Dashboard() {
 
           <div className="topnav-right">
             <div className="topnav-date">
-              {now.toLocaleDateString('id-ID', {
+              {now.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
                 weekday: 'long',
                 day: '2-digit',
                 month: 'long',
@@ -175,7 +177,7 @@ export default function Dashboard() {
               }}
             >
               <img className="menu-icon" src={feedbackIcon} alt="" aria-hidden="true" />
-              <span>Feedback</span>
+              <span>{t('dashboard.feedback')}</span>
             </button>
 
             <Link
@@ -184,7 +186,7 @@ export default function Dashboard() {
               onClick={() => setSidebarOpen(false)}
             >
               <img className="menu-icon" src={settingsIcon} alt="" aria-hidden="true" />
-              <span>Settings</span>
+              <span>{t('dashboard.settings')}</span>
             </Link>
             <div className="menu-divider" />
 
@@ -196,13 +198,13 @@ export default function Dashboard() {
               }}
             >
               <img className="menu-icon" src={logoutIcon} alt="" aria-hidden="true" />
-              <span>Logout</span>
+              <span>{t('dashboard.logout')}</span>
             </button>
           </nav>
 
           <div className="sidebar-footer">
             <div className="sidebar-footer-hint">
-              Tip: click in the dark area to close the sidebar.
+              {t('dashboard.sidebarTip')}
             </div>
           </div>
         </aside>
@@ -218,10 +220,10 @@ export default function Dashboard() {
             <div className="card-image w-full h-44 bg-cover bg-center bg-no-repeat" />
             <div className="card-content px-5 py-5 text-center">
               <h3 className="m-0 text-gray-800 text-lg font-semibold border-t border-pink-100 pt-3">
-                Chat with Teto
+                {t('dashboard.chatTitle')}
               </h3>
               <p className="mt-2 text-sm text-gray-600">
-                Study resume, request a summary, or ask a quick question.
+                {t('dashboard.chatDescription')}
               </p>
             </div>
           </Link>
@@ -233,10 +235,10 @@ export default function Dashboard() {
             <div className="card-image w-full h-44 bg-cover bg-center bg-no-repeat" />
             <div className="card-content px-5 py-5 text-center">
               <h3 className="m-0 text-gray-800 text-lg font-semibold border-t border-pink-100 pt-3">
-                Play Chess vs Teto
+                {t('dashboard.chessTitle')}
               </h3>
               <p className="mt-2 text-sm text-gray-600">
-                Focus training + step analysis (coming soon).
+                {t('dashboard.chessDescription')}
               </p>
             </div>
           </Link>
@@ -246,33 +248,33 @@ export default function Dashboard() {
         <div className="panel px-5 py-5 todo-panel">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">Today</h3>
+              <h3 className="text-lg font-semibold text-gray-800">{t('dashboard.today')}</h3>
               <div className="text-xs text-gray-500">
-                {todos.length} task{todos.length === 1 ? '' : 's'}
+                {todos.length} {todos.length === 1 ? t('dashboard.task') : t('dashboard.tasks')}
               </div>
             </div>
 
             <button className="todo-add" type="button" onClick={addTodo}>
-              + Add task
+              {t('dashboard.addTask')}
             </button>
           </div>
 
           {/* Scroll hanya kalau task > 3 */}
           <div className={`todo-list ${todos.length > 3 ? 'is-scroll' : ''}`}>
-            {todos.map((t) => (
-              <div className={`todo-row ${t.done ? 'is-done' : ''}`} key={t.id}>
+            {todos.map((todo) => (
+              <div className={`todo-row ${todo.done ? 'is-done' : ''}`} key={todo.id}>
                 <input
                   className="todo-checkbox"
                   type="checkbox"
-                  checked={t.done}
-                  onChange={(e) => updateTodo(t.id, { done: e.target.checked })}
+                  checked={todo.done}
+                  onChange={(e) => updateTodo(todo.id, { done: e.target.checked })}
                 />
 
                 <input
                   className="todo-input"
-                  value={t.text}
-                  placeholder="Add Task…"
-                  onChange={(e) => updateTodo(t.id, { text: e.target.value })}
+                  value={todo.text}
+                  placeholder={t('dashboard.addTaskPlaceholder')}
+                  onChange={(e) => updateTodo(todo.id, { text: e.target.value })}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') addTodo()
                   }}
@@ -281,9 +283,9 @@ export default function Dashboard() {
                 <button
                   type="button"
                   className="todo-delete"
-                  onClick={() => deleteTodo(t.id)}
-                  aria-label="Delete task"
-                  title="Delete"
+                  onClick={() => deleteTodo(todo.id)}
+                  aria-label={t('dashboard.deleteTask')}
+                  title={t('dashboard.deleteTask')}
                 >
                   ×
                 </button>
@@ -293,7 +295,7 @@ export default function Dashboard() {
 
           {/* Tip selalu stay di kiri bawah panel */}
           <div className="todo-tip text-xs text-gray-500">
-            Tip: press Enter to add a new task quickly.
+            {t('dashboard.addTaskTip')}
           </div>
         </div>
       </div>
@@ -307,9 +309,9 @@ export default function Dashboard() {
             if (e.target === e.currentTarget) setFeedbackOpen(false)
           }}
         >
-          <div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Feedback">
+          <div className="feedback-modal" role="dialog" aria-modal="true" aria-label={t('dashboard.sendFeedback')}>
             <div className="feedback-title">
-              <h3>Send Feedback</h3>
+              <h3>{t('dashboard.sendFeedback')}</h3>
               <button
                 type="button"
                 className="feedback-close"
@@ -321,19 +323,19 @@ export default function Dashboard() {
             </div>
 
             <p className="feedback-subtitle">
-              Any suggestions or bug reports are welcome. This helps "Study with Teto" become even better.
+              {t('dashboard.feedbackSubtitle')}
             </p>
 
             <textarea
               className="feedback-textarea"
               value={feedbackText}
-              placeholder="Write your feedback here…"
+              placeholder={t('dashboard.feedbackPlaceholder')}
               onChange={(e) => setFeedbackText(e.target.value)}
               rows={5}
             />
 
             {feedbackError && <div className="feedback-error">{feedbackError}</div>}
-            {feedbackSent && <div className="feedback-success">Thanks! Feedback sent.</div>}
+            {feedbackSent && <div className="feedback-success">{t('dashboard.feedbackSuccess')}</div>}
 
             <div className="feedback-actions">
               <button
@@ -342,7 +344,7 @@ export default function Dashboard() {
                 onClick={() => setFeedbackOpen(false)}
                 disabled={feedbackSending}
               >
-                Cancel
+                {t('dashboard.cancel')}
               </button>
               <button
                 type="button"
@@ -350,7 +352,7 @@ export default function Dashboard() {
                 onClick={submitFeedback}
                 disabled={feedbackSending || !feedbackText.trim()}
               >
-                {feedbackSending ? 'Sending…' : 'Send'}
+                {feedbackSending ? t('dashboard.sending') : t('dashboard.send')}
               </button>
             </div>
           </div>

@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import { useTranslation } from '../i18n/config.jsx'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 import { notificationService } from '../services/notificationServices'
 import './settings.css'
 
 export default function Settings() {
+  const { t } = useTranslation()
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     notificationService.isEnabled()
   )
@@ -18,9 +21,9 @@ export default function Settings() {
       <div className="w-full max-w-4xl bg-white/85 backdrop-blur px-7 py-5 rounded-2xl shadow-md border border-pink-100">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-3xl !font-bold !text-black m-0">Settings</h2>
+            <h2 className="text-3xl !font-bold !text-black m-0">{t('settings.title')}</h2>
             <p className="text-sm text-gray-600 mt-2">
-              Set display, language, and chat preferences.
+              {t('settings.subtitle')}
             </p>
           </div>
 
@@ -28,30 +31,33 @@ export default function Settings() {
             to="/dashboard"
             className="settings-back-btn px-4 py-2 rounded-xl rounded-xl text-gray-800"
           >
-            ← Back
+            {t('settings.back')}
           </Link>
         </div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link to="/settings/appearance" className="settings-card">
-            <h3 className="!font-bold !text-black">Appearance</h3>
+            <h3 className="!font-bold !text-black">{t('settings.appearance')}</h3>
             <p className="text-sm text-gray-600 mt-1">
-              Theme, accent color, background blur.
+              {t('settings.appearanceDesc')}
             </p>
           </Link>
 
-          <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
-            <h3 className="!font-bold !text-black">Chat</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Language, response length, tone (soon).
-            </p>
-          </div>
+          <Link to="#" className="rounded-2xl border border-pink-100 bg-white/70 p-4 text-decoration-none hover:shadow-lg hover:translate-y-[-3px] transition-all duration-300 flex items-start justify-between">
+            <div>
+              <h3 className="!font-bold !text-black">{t('settings.chat')}</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {t('settings.chatDesc')}
+              </p>
+            </div>
+            <LanguageSwitcher />
+          </Link>
 
           <div className="rounded-2xl border border-pink-100 bg-white/70 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="!font-bold !text-black">Notifications</h3>
-                <p className="text-sm text-gray-600 mt-1">Teto misses you reminder</p>
+                <h3 className="!font-bold !text-black">{t('settings.notifications')}</h3>
+                <p className="text-sm text-gray-600 mt-1">{t('settings.notificationsDesc')}</p>
               </div>
 
               <button
@@ -71,9 +77,9 @@ export default function Settings() {
           </div>
 
           <Link to="/settings/privacy" className="settings-card">
-            <h3 className="!font-bold !text-black">Privacy</h3>
+            <h3 className="!font-bold !text-black">{t('settings.privacy')}</h3>
             <p className="text-sm text-gray-600 mt-1">
-              Export data, analytics toggle.
+              {t('settings.privacyDesc')}
             </p>
           </Link>
         </div>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from '../../i18n/config.jsx'
 import '../settings.css'
 
 const PRIVACY_STORAGE_KEY = 'teto_privacy_v1'
@@ -18,6 +19,7 @@ function writePrivacySettings(next) {
 }
 
 export default function Privacy() {
+  const { t } = useTranslation()
   const initial = useMemo(() => readPrivacySettings(), [])
   const [analyticsEnabled, setAnalyticsEnabled] = useState(initial.analyticsEnabled ?? true)
   const [exportLoading, setExportLoading] = useState(false)
@@ -83,9 +85,9 @@ export default function Privacy() {
       <div className="w-full max-w-4xl bg-white/85 backdrop-blur px-7 py-6 rounded-2xl shadow-md border border-pink-100">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-extrabold text-black m-0">Privacy & Data</h2>
+            <h2 className="text-3xl font-extrabold text-black m-0">{t('privacy.pageTitle')}</h2>
             <p className="text-sm text-gray-600 mt-2">
-              Control your data and privacy settings.
+              {t('privacy.pageSubtitle')}
             </p>
           </div>
 
@@ -93,7 +95,7 @@ export default function Privacy() {
             to="/settings"
             className="settings-back-btn px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
           >
-            ← Back
+            {t('privacy.back')}
           </Link>
         </div>
 
@@ -102,9 +104,9 @@ export default function Privacy() {
           <section className="appearance-card">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h3 className="appearance-title">Analytics</h3>
+                <h3 className="appearance-title">{t('privacy.analyticsTitle')}</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  Help us improve by sharing anonymous usage data
+                  {t('privacy.analyticsDesc')}
                 </p>
               </div>
 
@@ -115,7 +117,7 @@ export default function Privacy() {
                   analyticsEnabled ? 'bg-pink-500' : 'bg-gray-300'
                 }`}
                 aria-pressed={analyticsEnabled}
-                aria-label="Toggle analytics"
+                aria-label={t('privacy.analyticsTitle')}
               >
                 <span
                   className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -126,8 +128,8 @@ export default function Privacy() {
             </div>
             <div className="appearance-help mt-3">
               {analyticsEnabled
-                ? 'Analytics is enabled'
-                : 'Analytics is disabled - we will not collect usage data'}
+                ? t('privacy.analyticsEnabled')
+                : t('privacy.analyticsDisabled')}
             </div>
           </section>
 
@@ -135,9 +137,9 @@ export default function Privacy() {
           <section className="appearance-card">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <h3 className="appearance-title">Export Your Data</h3>
+                <h3 className="appearance-title">{t('privacy.exportTitle')}</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  Download a copy of your settings and personal data
+                  {t('privacy.exportDesc')}
                 </p>
               </div>
 
@@ -147,16 +149,16 @@ export default function Privacy() {
                 disabled={exportLoading}
                 className="px-4 py-2 rounded-xl border border-pink-300 bg-pink-50 text-pink-700 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
               >
-                {exportLoading ? 'Exporting...' : 'Export'}
+                {exportLoading ? t('privacy.exporting') : t('privacy.exportButton')}
               </button>
             </div>
             {exportSuccess && (
               <div className="appearance-help mt-3 text-green-600">
-                ✓ Data exported successfully
+                {t('privacy.exportSuccess')}
               </div>
             )}
             <div className="appearance-help mt-3">
-              Your data will be downloaded as a JSON file that you can keep or import elsewhere.
+              {t('privacy.exportHelp')}
             </div>
           </section>
 
@@ -164,9 +166,9 @@ export default function Privacy() {
           <section className="appearance-card">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <h3 className="appearance-title text-red-600">Delete Account</h3>
+                <h3 className="appearance-title text-red-600">{t('privacy.deleteTitle')}</h3>
                 <p className="text-sm text-gray-600 mt-2">
-                  Permanently delete your account and all associated data. This action cannot be undone.
+                  {t('privacy.deleteDesc')}
                 </p>
               </div>
 
@@ -175,7 +177,7 @@ export default function Privacy() {
                 onClick={() => setShowDeleteConfirm(true)}
                 className="px-4 py-2 rounded-xl border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 transition-colors flex-shrink-0"
               >
-                Delete Account
+                {t('privacy.deleteButton')}
               </button>
             </div>
           </section>
@@ -184,9 +186,9 @@ export default function Privacy() {
           {showDeleteConfirm && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-6">
-                <h3 className="text-xl font-bold text-red-600 mb-2">Delete Account?</h3>
+                <h3 className="text-xl font-bold text-red-600 mb-2">{t('privacy.deleteConfirmTitle')}</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  This will permanently delete your account and all associated data. This action cannot be undone.
+                  {t('privacy.deleteConfirmDesc')}
                 </p>
                 <div className="flex gap-3">
                   <button
@@ -194,7 +196,7 @@ export default function Privacy() {
                     onClick={() => setShowDeleteConfirm(false)}
                     className="flex-1 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors"
                   >
-                    Cancel
+                    {t('privacy.deleteCancel')}
                   </button>
                   <button
                     type="button"
@@ -202,7 +204,7 @@ export default function Privacy() {
                     disabled={deleteLoading}
                     className="flex-1 px-4 py-2 rounded-lg border border-red-300 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {deleteLoading ? 'Deleting...' : 'Delete'}
+                    {deleteLoading ? t('privacy.deleting') : t('privacy.deleteConfirm')}
                   </button>
                 </div>
               </div>
