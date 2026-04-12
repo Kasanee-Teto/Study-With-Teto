@@ -123,7 +123,7 @@ export default function Dashboard() {
           </div>
 
           <div className="topnav-center">
-            <img className="h-20" src="src/assets/Logo.webp" alt="KASANE TETO" />
+            <img className="h-20" src="/Logo.webp" alt="KASANE TETO" />
           </div>
 
           <div className="topnav-right">

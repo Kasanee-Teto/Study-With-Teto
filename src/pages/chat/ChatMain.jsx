@@ -313,7 +313,7 @@ export default function ChatMain({
         <div className="flex flex-col items-center gap-2 mx-4 text-center">
           <img
             className="w-11 h-11 object-cover rounded-full border-1 border-white/80"
-            src="src/assets/teto-teach-profile.jpeg"
+            src="/teto-teach-profile.jpeg"
             alt="Teto Profile Image"
           />
           <div className="flex items-center gap-2 justify-center">
