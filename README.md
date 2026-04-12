@@ -1,4 +1,3 @@
-```markdown
 # Study with Teto 🎀
 
 A full-stack AI study assistant and chatbot featuring the persona of Kasane Teto. The application combines a React (Vite) frontend with Vercel serverless functions, integrating multiple LLM providers, Text-to-Speech (TTS), and Supabase for authentication and database management.
