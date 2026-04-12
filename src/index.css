@@ -1,96 +1,226 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
+@theme {
+  --color-bg-main: #131314;
+  --color-bg-panel: #1e1e20;
+  --color-bg-panel2: #1c1c1e;
+  --color-text-primary: #e3e3e3;
+  --color-text-secondary: #9ca3af;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+}
+
+/* =========================================================
+   TETO THEME TOKENS (source of truth)
+   ========================================================= */
+:root {
+  /* base */
+  --teto-page-bg: #0b0b10;
+
+  --teto-surface: rgba(255, 255, 255, 0.85);
+  --teto-surface-2: rgba(255, 255, 255, 0.72);
+
+  --teto-border: rgba(255, 170, 210, 0.35);
+
+  --teto-text: rgba(17, 24, 39, 0.9);
+  --teto-text-muted: rgba(17, 24, 39, 0.6);
+
+  /* accent */
+  --teto-accent: #fb73b3;
+
+  /* overlay controls (from Appearance sliders) */
+  --teto-bg-blur: 2px;
+  --teto-overlay-opacity: 0.55;
+
+  /* mapping for your existing Chat tokens */
+  --bg-main: var(--teto-page-bg);
+  --text-primary: var(--teto-text);
+  --text-muted: var(--teto-text-muted);
+
+  --surface: var(--teto-surface);
+  --surface-2: var(--teto-surface-2);
+  --border: var(--teto-border);
+
+  /* typography */
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
+
   color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+
+  /* base paint uses our tokens */
+  color: var(--teto-text);
+  background: var(--teto-page-bg);
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
 
-  @media (max-width: 1024px) {
+:root[data-theme='dark'] {
+  --teto-page-bg: #07070c;
+
+  --teto-surface: rgba(18, 18, 28, 0.72);
+  --teto-surface-2: rgba(18, 18, 28, 0.6);
+
+  --teto-border: rgba(251, 115, 179, 0.22);
+
+  --teto-text: rgba(255, 255, 255, 0.9);
+  --teto-text-muted: rgba(255, 255, 255, 0.65);
+
+  /* keep mapping in dark mode */
+  --bg-main: var(--teto-page-bg);
+  --text-primary: var(--teto-text);
+  --text-muted: var(--teto-text-muted);
+
+  --surface: var(--teto-surface);
+  --surface-2: var(--teto-surface-2);
+  --border: var(--teto-border);
+}
+
+@media (max-width: 1024px) {
+  :root {
     font-size: 16px;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+/* =========================================================
+   Chat component helpers (your existing chat UI)
+   ========================================================= */
+@layer components {
+  .chat-voice-btn {
+    @apply inline-flex items-center justify-center rounded-md border border-white/20 bg-white/10 px-2 py-1 text-xs font-medium text-white shadow-sm transition;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  .chat-voice-btn:hover {
+    @apply bg-white/20 text-white;
+  }
+
+  .chat-voice-btn:disabled {
+    @apply cursor-not-allowed opacity-40;
+  }
+
+  .chat-voice-btn-play {
+    @apply text-pink-100 border-pink-200/40 bg-pink-400/20;
+  }
+
+  .chat-voice-btn-play:hover {
+    @apply bg-pink-400/30 text-white;
+  }
+
+  .chat-voice-btn-pause {
+    @apply text-sky-100 border-sky-200/40 bg-sky-400/20;
+  }
+
+  .chat-voice-btn-pause:hover {
+    @apply bg-sky-400/30 text-white;
+  }
+
+  .chat-panel {
+    @apply h-full min-h-[100svh];
+  }
+
+  .chat-subtle {
+    @apply text-xs text-text-secondary;
+  }
+
+  .chat-btn {
+    @apply rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-sm font-medium text-text-primary transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .chat-icon-btn {
+    @apply rounded-md border border-white/10 bg-white/5 px-2 py-1 text-sm text-text-primary;
+  }
+
+  .chat-input {
+    @apply rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-secondary focus:border-white/20;
+  }
+
+  .chat-session-item {
+    @apply w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-left text-sm text-text-primary transition hover:bg-white/10;
+  }
+
+  .chat-session-item-active {
+    @apply border-white/20 bg-white/15;
+  }
+
+  .chat-bubble {
+    @apply max-w-[80%] rounded-2xl px-4 py-3;
+  }
+
+  .chat-bubble-user {
+    @apply rounded-br-sm bg-indigo-500/80;
+  }
+
+  .chat-bubble-assistant {
+    @apply rounded-bl-sm border border-white/10 bg-bg-panel;
+  }
+
+  .chat-meta-item {
+    @apply rounded-xl border border-white/10 bg-white/5 p-3;
   }
 }
 
+/* =========================================================
+   Global overlay (APPLIES TO ALL PAGES)
+   ========================================================= */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255, 208, 232, var(--teto-overlay-opacity, 0.55)),
+    rgba(0, 0, 0, var(--teto-overlay-opacity, 0.55))
+  );
+
+  backdrop-filter: blur(var(--teto-bg-blur, 2px));
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Base layout */
 body {
   margin: 0;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+  border-inline: 0;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
 }
 
+/* Headings */
 h1,
 h2 {
   font-family: var(--heading);
   font-weight: 500;
-  color: var(--text-h);
+  color: var(--teto-text);
 }
 
 h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
 }
+
 p {
   margin: 0;
 }
@@ -100,12 +230,22 @@ code,
   font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
-  color: var(--text-h);
+  color: var(--teto-text);
 }
 
 code {
   font-size: 15px;
   line-height: 135%;
   padding: 4px 8px;
-  background: var(--code-bg);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+  h2 {
+    font-size: 20px;
+  }
 }

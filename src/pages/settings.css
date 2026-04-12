@@ -1,0 +1,136 @@
+/* ===== Back button hover ===== */
+.settings-back-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  color: var(--teto-text);
+  border: 1px solid var(--teto-border);
+  background: var(--teto-surface);
+}
+
+.settings-back-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 214, 235, 0.45);
+  box-shadow: 0 10px 25px rgba(40, 20, 60, 0.12);
+}
+
+.settings-back-btn:active {
+  transform: translateY(0px);
+}
+
+.settings-back-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(251, 115, 179, 0.25),
+    0 10px 25px rgba(40, 20, 60, 0.12);
+}
+
+/* ===== Settings cards (clickable) ===== */
+.settings-card {
+  display: block;
+  border-radius: 16px;
+  border: 1px solid var(--teto-border);
+  background: var(--teto-surface-2);
+  padding: 16px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  text-decoration: none;
+  color: var(--teto-text);
+}
+
+.settings-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 214, 235, 0.18);
+  box-shadow: 0 14px 30px rgba(40, 20, 60, 0.12);
+}
+
+/* ===== Appearance page styling ===== */
+.appearance-card {
+  border-radius: 18px;
+  border: 1px solid var(--teto-border);
+  background: var(--teto-surface-2);
+  padding: 16px;
+}
+
+.appearance-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.appearance-title {
+  margin: 0;
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--teto-text);
+}
+
+.appearance-value {
+  font-weight: 900;
+  color: var(--teto-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.appearance-badge {
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 214, 235, 0.6);
+  border: 1px solid rgba(251, 115, 179, 0.45);
+  color: var(--teto-text);
+}
+
+.appearance-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.appearance-chip {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 170, 210, 0.55);
+  background: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgba(17, 24, 39, 0.75);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+}
+
+:root[data-theme='dark'] .appearance-chip {
+  background: rgba(18, 18, 28, 0.7);
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(251, 115, 179, 0.25);
+}
+
+.appearance-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(40, 20, 60, 0.12);
+}
+
+.appearance-chip.is-active {
+  background: rgba(255, 214, 235, 0.7);
+  border-color: rgba(251, 115, 179, 0.55);
+  color: rgba(17, 24, 39, 0.9);
+}
+
+:root[data-theme='dark'] .appearance-chip.is-active {
+  background: rgba(251, 115, 179, 0.22);
+  border-color: rgba(251, 115, 179, 0.55);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.appearance-help {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--teto-text-muted);
+}
+
+/* range slider (pink) */
+.appearance-range {
+  width: 100%;
+  margin-top: 12px;
+  accent-color: var(--teto-accent);
+}

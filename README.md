@@ -1,118 +1,106 @@
-# Study with Teto — AI Study + Chess Companion (Free API Friendly)
+# Study with Teto 🎀
 
-**Current date:** 2026-03-30  
-**Deadline:** 2026-04-13 23:59 WIB
-
-Study with Teto is a web-based AI tool/service that helps students and the community learn faster, stay focused, and improve thinking skills through:
-- Chat with “Teto” (a consistent persona assistant)
-- Play chess vs Teto (practice + coaching)
-- Study utilities (planner, pomodoro, flashcards, reports)
-
-The project is designed to be **functional**, have **real-world impact** (study help + cognitive training), and have **monetization potential** (freemium + packs + donations).
+A full-stack AI study assistant and chatbot featuring the persona of Kasane Teto. The application combines a React (Vite) frontend with Vercel serverless functions, integrating multiple LLM providers, Text-to-Speech (TTS), and Supabase for authentication and database management.
 
 ---
 
-## Project Goals
-1. Build a working AI web service (not just a demo).
-2. Provide at least **20 usable features**.
-3. Be deployable and presentable before the deadline.
-4. Be “free-API friendly”: supports low-cost/free AI usage and/or BYO-key mode.
+## 🛠 Tech Stack
+- **Frontend:** React 18, Vite, React Router, TailwindCSS
+- **Backend:** Vercel Serverless Functions (Node.js)
+- **Database & Auth:** Supabase (PostgreSQL, Auth, Row Level Security)
+- **AI Providers:** OpenRouter, Groq (Fallback)
+- **Audio/TTS:** Fish Audio API, Browser Native `SpeechSynthesis`
 
 ---
 
-## Feature List (24 Features)
+## 📋 Feature Audit List
 
-### A) Core AI Chat
-1. Realtime chat UI (streaming responses)
-2. Persona engine: “Teto mode” system rules + style consistency
-3. Multi-language support (at least ID + EN)
-4. Per-user chat memory (summarization to keep it lightweight)
-5. Prompt templates (study, summary, planning, interview practice)
-6. File drop summarization (start with .txt/.md; PDF optional)
-7. Citations-lite for uploaded docs (show referenced snippets)
-8. Safety & moderation (basic filter + report button)
+### *Core features*
+1. **User Authentication & OAuth:** Email/password signup/login with client-side password matching, plus OAuth integration (Google, GitHub, LinkedIn, X) via Supabase.
+2. **AI Chatbot Interface:** Interactive chat UI featuring optimistic updates (showing temporary user messages instantly) and automatic scroll-to-bottom behavior.
+3. **Multi-Provider AI Routing:** Serverless AI generation using OpenRouter as the primary provider with an automatic HTTP status-aware fallback to Groq on failure.
+4. **Dynamic Persona Engine:** Context-aware system prompt generation with specific persona configurations for general chat, Study Tutor, and Chess Coach modes.
+5. **Language Detection Algorithm:** Custom keyword scoring system (`detectLang`) to automatically detect if the user is speaking Indonesian or English and adjust the AI's prompt language accordingly.
+6. **Premium Text-to-Speech (TTS) Proxy:** Backend audio generation API securely proxying requests to the Fish Audio API.
+7. **Browser Native TTS Fallback:** A regex-based female voice picker (`pickFemaleVoice`) that falls back to the browser's native `SpeechSynthesis` if the premium API fails or drops.
+8. **Dashboard Task Management:** A local state Todo list with add, toggle, delete, and "Enter" key quick-add functionalities.
 
-### B) Chess vs Teto
-9. Chess board UI (drag & drop)
-10. Chess engine integration (Stockfish WASM or server)
-11. Chess coaching: explain moves + suggest improvements
-12. Puzzle mode (tactics training)
-13. Post-game analysis (blunders/mistakes + training advice)
-14. Save and export games as PGN
+### *Utility features*
+9. **Audio LRU Cache Management:** Memory-efficient audio caching system (`MAX_CACHE = 8`) that limits stored TTS blobs in the browser to prevent memory leaks, automatically revoking old URLs.
+10. **Granular Audio Playback Controls:** Play, retry, pause, and resume controls mapped to individual chat bubbles, handling HTML5 Audio and native Speech Synthesis separately.
+11. **Chat Session Search & Filtering:** Client-side search bar in the left sidebar to quickly filter historical chat sessions by title.
+12. **Dynamic Chat Retitling:** Automatically generates and updates a chat session's title in the database based on the text of the user's first message.
+13. **User Feedback System:** In-app modal that captures the user's current page context and saves feedback/bug reports directly to the Supabase database.
+14. **Appearance Settings Engine:** Live-updating theme engine (Light/Dark/System), adjustable background blur, and overlay opacity persisting across reloads via `localStorage`.
+15. **Data Privacy & Export:** A utility to download a JSON blob of user settings/data, and an account deletion UI simulator that clears local storage.
+16. **Live Dashboard Clock:** Real-time date and localized time display updating dynamically every second using `setInterval`.
+17. **Local Notifications Toggle:** State management for a "Teto misses you" notification preference via `localStorage`.
 
-### C) Social / Community
-15. User accounts (GitHub OAuth or email magic link)
-16. Public profile (stats, badges, streak)
-17. Shareable links (share game analysis / selected chats)
-18. Leaderboard (puzzle streak / training rating)
-19. Feedback box + feature voting
+### *Infra/support features*
+18. **Protected Routing & Auth State:** React Router wrapper (`RequireAuth`) that securely blocks unauthenticated access using Supabase session listeners (`onAuthStateChange`).
+19. **Backend Database Syncing:** Automatic `app_users` profile upserting securely handled via Supabase Admin service role, extracting GitHub/OAuth metadata into the app's database.
+20. **RLS-Safe API Operations:** Backend validation ensuring users can only read, patch, and insert their own `chat_sessions` and `chat_messages` by strictly matching the authenticated Supabase user ID.
+21. **Context Window Limiting:** The API automatically slices the conversation history to the last 40 messages (`CONTEXT_LIMIT`) before sending it to the LLM to save tokens and prevent context overflow.
+22. **Mobile-Responsive Overlays:** Click-outside-to-close behavior (`onMouseDown`) and touch-friendly overlay drawers for mobile left/right sidebars.
+23. **Global Error Boundary:** A React class component (`ErrorBoundary`) to gracefully catch unhandled rendering errors and provide a UI recovery/reload button instead of a white screen.
 
-### D) Productivity / Learning Tools
-20. Task planner: goals -> checklist + suggested schedule
-21. Pomodoro focus timer + reflection prompts
-22. Flashcard generator from chats/docs (basic spaced repetition)
-23. Weekly report (study topics + chess progress)
-24. PWA offline-friendly (installable, caching core pages)
-
----
-
-## Timeline (2026-03-30 to 2026-04-13)
-
-### Sprint 0 — Setup & Foundation (Mar 30)
-- Setup project, CI, env handling
-- (15) Accounts (minimal) — Mar 30–Mar 31
-
-### Sprint 1 — Chat MVP (Mar 31–Apr 3)
-- (1) Streaming chat — Mar 31–Apr 1
-- (2) Persona engine — Apr 1
-- (3) Multi-language (ID/EN) — Apr 1–Apr 2
-- (4) Memory summarization — Apr 2
-- (5) Prompt templates — Apr 2
-- (8) Safety + report — Apr 3
-
-### Sprint 2 — Chess MVP (Apr 4–Apr 7)
-- (9) Chess UI — Apr 4
-- (10) Stockfish integration — Apr 4–Apr 5
-- (14) PGN save/export — Apr 5
-- (11) Coaching explanations — Apr 6
-- (13) Post-game analysis — Apr 7
-
-### Sprint 3 — Study Tools (Apr 8–Apr 10)
-- (6) File drop summarize — Apr 8
-- (7) Citations-lite — Apr 8–Apr 9
-- (22) Flashcards — Apr 9
-- (20) Task planner — Apr 10
-- (21) Pomodoro — Apr 10
-
-### Sprint 4 — Community + Polish + Deploy (Apr 11–Apr 13)
-- (16) Public profile — Apr 11
-- (17) Shareable links — Apr 11–Apr 12
-- (18) Leaderboard — Apr 12
-- (12) Puzzle mode — Apr 12
-- (19) Feedback/voting — Apr 12
-- (23) Weekly report — Apr 13
-- (24) PWA — Apr 13
-- QA + README + final demo + deploy — Apr 13
+### *Feature Counts*
+- **Frontend count:** 14
+- **Backend count:** 9
+- **Deduplicated total:** 23 implemented features
 
 ---
 
-## Suggested Tech Stack (fast for deadline)
-- Frontend/Backend: Next.js (TypeScript)
-- UI: Tailwind CSS
-- Auth: NextAuth (GitHub)
-- DB: Prisma + SQLite (or Postgres/Supabase)
-- Chess: chess.js + react-chessboard + Stockfish (WASM)
-- Deploy: Vercel
+## 🚀 How to Start and Run the Repo
 
----
+This project is built using **React + Vite** for the frontend and **Vercel Serverless Functions** (located in the `/api` directory) for the backend. 
 
-## Monetization Ideas (optional)
-- Freemium: basic chat/chess free, advanced analysis/packs paid
-- Persona packs / study templates packs
-- Donations (Ko-fi / GitHub Sponsors)
-- Team plan for study groups (shared tasks/flashcards)
+### Prerequisites
+- Node.js (v18+)
+- Vercel CLI installed globally (`npm i -g vercel`)
+- A Supabase Project (for Auth and PostgreSQL tables: `app_users`, `chat_sessions`, `chat_messages`, `feedback`)
+- API Keys for OpenRouter, Groq, and Fish Audio
 
----
+### 1. Environment Variables
+Create a `.env` (or `.env.local`) file in the root of your project and populate it with the following keys:
 
-## Contributing
-This is a student project. One representative member can submit on behalf of the team.
+```env
+# Frontend (Vite)
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Backend (Vercel Serverless)
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_DEFAULT_MODEL=your_preferred_openrouter_model
+GROQ_API_KEY=your_groq_api_key
+GROQ_DEFAULT_MODEL=your_preferred_groq_model
+FISH_API_KEY=your_fish_audio_api_key
+```
+
+### 2. Install Dependencies
+Run the following command to install all required NPM packages:
+```bash
+npm install
+```
+
+### 3. Run Locally for Development
+Because the app relies on Vercel Serverless Functions for its `/api/*` routes, running `vite` alone will not start the backend. **You must use the Vercel CLI to emulate the cloud environment:**
+
+```bash
+vercel dev
+```
+
+This command will:
+1. Start the Vite development server for the frontend.
+2. Spin up a local Node.js environment to handle requests to `/api/*`.
+3. Provide you with a single `localhost` URL (usually `http://localhost:3000`) where both the frontend and backend are seamlessly mapped and proxy correctly.
+
+### 4. Deployment
+To deploy to production, simply push your code to GitHub and connect your repository to Vercel, or deploy directly via the Vercel CLI:
+```bash
+vercel --prod
+```
+*(Make sure to add all the environment variables in your Vercel project settings dashboard before deploying).*
+```

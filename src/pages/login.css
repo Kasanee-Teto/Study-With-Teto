@@ -1,0 +1,47 @@
+body {
+	margin: 0;
+	font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+}
+
+.sign-in-page {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../assets/teto1.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out;
+}
+
+.social-icon-btn.google-icon {
+  background-image: url(../assets/google.jpg);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
+}
+
+.social-icon-btn.github-icon {
+  background-image: url(../assets/github.png);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
+}
+
+.social-icon-btn.linkedin-icon {
+  background-image: url(../assets/linkedin.png);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
+}
+
+.social-icon-btn.x-icon {
+  background-image: url(../assets/X.png);
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.3);
+}

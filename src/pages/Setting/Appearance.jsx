@@ -1,0 +1,143 @@
+
+import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from '../../i18n/config.jsx'
+import '../settings.css'
+
+const STORAGE_KEY = 'teto_settings_v1'
+
+function readSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+function writeSettings(next) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement
+
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches
+    root.dataset.theme = prefersDark ? 'dark' : 'light'
+    return
+  }
+
+  root.dataset.theme = theme || 'light'
+}
+
+export default function Appearance() {
+  const { t } = useTranslation()
+  const initial = useMemo(() => readSettings(), [])
+
+  const [theme, setTheme] = useState(initial.theme ?? 'light')
+  const [bgBlur, setBgBlur] = useState(initial.bgBlur ?? 2)
+  const [overlayOpacity, setOverlayOpacity] = useState(initial.overlayOpacity ?? 0.55)
+
+  useEffect(() => {
+    const next = { ...readSettings(), theme, bgBlur, overlayOpacity }
+    writeSettings(next)
+
+    // apply live
+    applyTheme(theme)
+
+    const root = document.documentElement
+    root.style.setProperty('--teto-bg-blur', `${bgBlur}px`)
+    root.style.setProperty('--teto-overlay-opacity', String(overlayOpacity))
+  }, [theme, bgBlur, overlayOpacity])
+
+  return (
+    <div className="min-h-screen w-full px-5 py-10 md:px-20 md:py-10 flex flex-col items-center">
+      <div className="w-full max-w-4xl bg-white/85 backdrop-blur px-7 py-6 rounded-2xl shadow-md border border-pink-100">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-extrabold !text-black m-0">{t('appearance.pageTitle')}</h2>
+            <p className="text-sm text-gray-600 mt-2">
+              {t('appearance.pageSubtitle')}
+            </p>
+          </div>
+
+          <Link
+            to="/settings"
+            className="settings-back-btn px-4 py-2 rounded-xl border border-pink-200 bg-white/70 text-gray-800"
+          >
+            {t('appearance.back')}
+          </Link>
+        </div>
+
+        <div className="mt-7 grid gap-4">
+          <section className="appearance-card">
+            <div className="appearance-card-head">
+              <h3 className="appearance-title">{t('appearance.themeTitle')}</h3>
+              <span className="appearance-badge">{t(`appearance.theme${theme.charAt(0).toUpperCase()}${theme.slice(1)}`)}</span>
+            </div>
+
+            <div className="appearance-chip-row">
+              {['light', 'dark', 'system'].map((t_val) => (
+                <button
+                  key={t_val}
+                  type="button"
+                  className={`appearance-chip ${theme === t_val ? 'is-active' : ''}`}
+                  onClick={() => setTheme(t_val)}
+                >
+                  {t(`appearance.theme${t_val.charAt(0).toUpperCase()}${t_val.slice(1)}`)}
+                </button>
+              ))}
+            </div>
+
+            <div className="appearance-help">
+              {t('appearance.themeHelp')}
+            </div>
+          </section>
+
+          <section className="appearance-card">
+            <div className="appearance-card-head">
+              <h3 className="appearance-title">{t('appearance.bgBlurTitle')}</h3>
+              <span className="appearance-value">{bgBlur}px</span>
+            </div>
+
+            <input
+              className="appearance-range"
+              type="range"
+              min={0}
+              max={10}
+              step={1}
+              value={bgBlur}
+              onChange={(e) => setBgBlur(Number(e.target.value))}
+            />
+
+            <div className="appearance-help">{t('appearance.bgBlurHelp')}</div>
+          </section>
+
+          <section className="appearance-card">
+            <div className="appearance-card-head">
+              <h3 className="appearance-title">{t('appearance.overlayTitle')}</h3>
+              <span className="appearance-value">
+                {Math.round(overlayOpacity * 100)}%
+              </span>
+            </div>
+
+            <input
+              className="appearance-range"
+              type="range"
+              min={0.2}
+              max={0.9}
+              step={0.05}
+              value={overlayOpacity}
+              onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+            />
+
+            <div className="appearance-help">
+              {t('appearance.overlayHelp')}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
+}
