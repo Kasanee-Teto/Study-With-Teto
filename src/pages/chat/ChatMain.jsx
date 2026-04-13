@@ -32,7 +32,7 @@ function MessageBubble({
     <div className="flex justify-start items-start gap-2">
       <img
         className="mt-0.5 h-7 w-7 rounded-full object-cover border border-white/30 shrink-0"
-        src="src/assets/teto-teach-profile.jpeg"
+        src="/teto-teach-profile.jpeg"
         alt="Teto"
       />
 

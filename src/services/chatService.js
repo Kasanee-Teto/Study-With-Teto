@@ -1,4 +1,4 @@
-import { getJSON, patchJSON, postJSON } from '../lib/api'
+import { getJSON, postJSON } from '../lib/api'
 import { generateReply } from './aiService'
 import { supabase } from '../lib/supabaseClient'
 
