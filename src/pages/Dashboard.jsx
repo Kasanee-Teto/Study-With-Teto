@@ -242,6 +242,20 @@ export default function Dashboard() {
               </p>
             </div>
           </Link>
+
+          <Link to="/voice-cloning" className="card group flex flex-col ...">
+            <div className="card-content px-5 py-5 text-center">
+              <h3>🎙 Voice Cloning</h3>
+              <p className="mt-2 text-sm text-gray-600">Clone any voice with Fish Audio AI</p>
+            </div>
+          </Link>
+
+          <Link to="/translator" className="card group flex flex-col ...">
+            <div className="card-content px-5 py-5 text-center">
+              <h3>Translate</h3>
+              <p className="mt-2 text-sm text-gray-600">Translate text in real-time with Teto</p>
+            </div>
+          </Link>
         </div>
 
         {/* Right: Todo Panel */}
