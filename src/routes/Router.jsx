@@ -11,6 +11,8 @@ import SignUpPage from '../pages/SignUp.jsx'
 import Settings from '../pages/settings.jsx'
 import AppearanceSettings from '../pages/Setting/Appearance.jsx'
 import PrivacySettings from '../pages/Setting/Privacy.jsx'
+import Translator from '../pages/Translator.jsx'
+import VoiceCloning from '../pages/VoiceClone.jsx'
 
 const STORAGE_KEY = 'teto_settings_v1'
 
@@ -131,6 +133,23 @@ export default function Router() {
           }
         />
 
+        <Route
+          path="/translator"
+          element={
+            <RequireAuth>
+              <Translator />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/voice-cloning"
+          element={
+            <RequireAuth>
+              <VoiceCloning />
+            </RequireAuth>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
