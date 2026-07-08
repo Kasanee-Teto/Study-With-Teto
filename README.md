@@ -155,7 +155,6 @@ ALTER TABLE app_users
 ALTER TABLE app_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE chess_games ENABLE ROW LEVEL SECURITY;
 
 -- Policies (adjust service-role bypass as needed):
 
@@ -225,7 +224,6 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_session_created_at
 DROP POLICY IF EXISTS "Users can manage own app_users row" ON public.app_users;
 DROP POLICY IF EXISTS "Users can manage own chat sessions" ON public.chat_sessions;
 DROP POLICY IF EXISTS "Users can manage own chat messages" ON public.chat_messages;
-DROP POLICY IF EXISTS "Users can manage own chess games" ON public.chess_games;
 
 CREATE POLICY "Users can manage own app_users row"
   ON public.app_users FOR ALL

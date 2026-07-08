@@ -228,21 +228,6 @@ export default function Dashboard() {
             </div>
           </Link>
 
-          <Link
-            to="/chess"
-            className="card card-chess group flex flex-col text-decoration-none overflow-hidden hover:shadow-xl hover:translate-y-[-6px] transition-all duration-300 cursor-pointer"
-          >
-            <div className="card-image w-full h-44 bg-cover bg-center bg-no-repeat" />
-            <div className="card-content px-5 py-5 text-center">
-              <h3 className="m-0 text-gray-800 text-lg font-semibold border-t border-pink-100 pt-3">
-                {t('dashboard.chessTitle')}
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {t('dashboard.chessDescription')}
-              </p>
-            </div>
-          </Link>
-
           <Link to="/voice-cloning" className="card group flex flex-col ...">
             <div className="card-content px-5 py-5 text-center">
               <h3>🎙 Voice Cloning</h3>

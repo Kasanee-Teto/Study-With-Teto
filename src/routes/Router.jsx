@@ -5,7 +5,6 @@ import RequireAuth from './RequireAuth.jsx'
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Chat from '../pages/Chat.jsx'
-import Chess from '../pages/Chess.jsx'
 import SignUpPage from '../pages/SignUp.jsx'
 
 import Settings from '../pages/settings.jsx'
@@ -94,14 +93,6 @@ export default function Router() {
           element={
             <RequireAuth>
               <Chat />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/chess"
-          element={
-            <RequireAuth>
-              <Chess />
             </RequireAuth>
           }
         />

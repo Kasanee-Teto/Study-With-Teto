@@ -29,12 +29,6 @@
   background-position: center;
 }
 
-.card-chess .card-image {
-  background-image: url(../assets/chess.jpg);
-  background-size: cover;
-  background-position: center;
-}
-
 /* ===== Top Nav (full width, responsive, tidak nabrak hamburger) ===== */
 .topnav {
   position: sticky;
