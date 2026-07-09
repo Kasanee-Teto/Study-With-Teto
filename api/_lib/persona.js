@@ -160,20 +160,6 @@ Output style:
 // Mode-specific extensions
 // ---------------------------------------------------------------------------
 
-const COACH_ID = `
-Mode: Chess Coach.
-- Jelaskan konsep langkah dan rencana secara sederhana.
-- Beri 1–3 tips actionable.
-- Kalau ada blunder, jelaskan "kenapa" dan "apa alternatifnya".
-`.trim()
-
-const COACH_EN = `
-Mode: Chess Coach.
-- Explain the idea and plan simply.
-- Give 1–3 actionable tips.
-- If there's a blunder, explain why and suggest alternatives.
-`.trim()
-
 const STUDY_ID = `
 Mode: Study Tutor.
 - Bantu rencana belajar (goal → langkah kecil → jadwal).
@@ -197,9 +183,7 @@ export function buildTetoSystem(mode = 'chat', messages = []) {
   const lang         = detectLang(safeMessages)
 
   const base  = lang === 'en' ? BASE_EN  : BASE_ID
-  const extra = mode === 'coach'
-    ? (lang === 'en' ? COACH_EN : COACH_ID)
-    : (lang === 'en' ? STUDY_EN : STUDY_ID)
+  const extra = mode === 'study' ? (lang === 'en' ? STUDY_EN : STUDY_ID) : ''
   const tts   = lang === 'en' ? TTS_RULES_EN : TTS_RULES_ID
 
   return `${base}\n\n${extra}\n\n${tts}`
