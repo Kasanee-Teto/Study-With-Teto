@@ -109,7 +109,7 @@ export default function VoiceCard({ model, onDeleted }) {
 
           {previewError && (
             <div className="vc-banner vc-banner--error">
-              <span className="vc-banner-icon" aria-hidden="true">!</span>
+              <span className="vc-banner-icon" aria-hidden="true">{'\u26A0'}</span>
               {previewError}
             </div>
           )}

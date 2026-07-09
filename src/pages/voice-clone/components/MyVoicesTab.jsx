@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useTranslation } from '../../../i18n/useTranslation.js'
 import { listVoiceModels } from '../../../services/voiceCloneService.js'
@@ -58,7 +58,7 @@ export default function MyVoicesTab() {
   if (models.length === 0) {
     return (
       <div className="vc-empty">
-        <div className="vc-empty-icon" aria-hidden="true">Voice</div>
+        <div className="vc-empty-icon" aria-hidden="true">{'\uD83C\uDFA4'}</div>
         <div className="vc-empty-text">{t('voiceClone.emptyVoices')}</div>
       </div>
     )
