@@ -36,6 +36,7 @@ export default function Chat() {
   const [search, setSearch] = useState('')
   const [leftOpen, setLeftOpen] = useState(false)
   const [rightOpen, setRightOpen] = useState(false)
+  const [renamingSession, setRenamingSession] = useState(false)
 
   const currentMessages = useMemo(
     () => messagesBySessionId[currentSessionId] || [],
@@ -207,6 +208,26 @@ export default function Chat() {
     }
   }
 
+  async function handleRenameSession(sessionId, title) {
+    if (!sessionId) return
+
+    setError(null)
+    setRenamingSession(true)
+
+    try {
+      const updated = await updateSessionTitle(sessionId, title)
+
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.id === sessionId
+            ? { ...session, title: updated.title, updated_at: updated.updated_at || session.updated_at }
+            : session
+        )
+      )
+    } finally {
+      setRenamingSession(false)
+    }
+  }
   const leftSidebar = (
     <LeftSidebar
       sessions={sessions}
@@ -228,6 +249,8 @@ export default function Chat() {
     <RightPanel
       activeSession={activeSession}
       messageCount={currentMessages.length}
+      onRenameSession={handleRenameSession}
+      renamingSession={renamingSession}
     />
   )
 
@@ -275,3 +298,5 @@ export default function Chat() {
     </div>
   )
 }
+
+
