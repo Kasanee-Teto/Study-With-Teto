@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useEffect, useMemo, useState } from 'react'
 import './dashboard.css'
-import { useTranslation } from '../i18n/config.jsx'
+import { useTranslation } from '../i18n/useTranslation.js'
 
 import feedbackIcon from '../assets/feedback.png'
 import settingsIcon from '../assets/settings.png'

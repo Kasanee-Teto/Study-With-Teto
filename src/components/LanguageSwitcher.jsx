@@ -1,4 +1,4 @@
-import { useTranslation } from '../i18n/config.jsx'
+import { useTranslation } from '../i18n/useTranslation.js'
 import './LanguageSwitcher.css'
 
 export default function LanguageSwitcher() {

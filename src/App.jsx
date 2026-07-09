@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Router from './routes/Router'
 import TetoNotification from './components/TetoNotification'
-import { I18nProvider } from './i18n/config.jsx'
+import { I18nProvider } from './i18n/I18nProvider.jsx'
 
 class ErrorBoundary extends Component {
   constructor(props) {
