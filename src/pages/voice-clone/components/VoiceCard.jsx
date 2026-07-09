@@ -1,48 +1,63 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
+
+import { useTranslation } from '../../../i18n/useTranslation.js'
 import { deleteVoiceModel, previewVoice } from '../../../services/voiceCloneService.js'
-import { DEFAULT_PREVIEW } from '../constants.js'
-import { formatDate, statusClass, statusLabel } from '../utils.js'
+import { formatDate, statusClass, statusIcon, statusLabelKey } from '../utils.js'
 
 export default function VoiceCard({ model, onDeleted }) {
-  const [previewText, setPreviewText]     = useState(DEFAULT_PREVIEW)
+  const { t } = useTranslation()
+  const [previewText, setPreviewText] = useState(() => t('voiceClone.defaultPreview'))
   const [previewLoading, setPreviewLoading] = useState(false)
-  const [previewUrl, setPreviewUrl]       = useState(null)
-  const [previewError, setPreviewError]   = useState('')
-  const [deleting, setDeleting]           = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const [previewError, setPreviewError] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
   const audioRef = useRef(null)
   const prevUrlRef = useRef(null)
 
   function releasePrev() {
-    if (prevUrlRef.current) { URL.revokeObjectURL(prevUrlRef.current); prevUrlRef.current = null }
+    if (prevUrlRef.current) {
+      URL.revokeObjectURL(prevUrlRef.current)
+      prevUrlRef.current = null
+    }
   }
 
-  useEffect(() => () => releasePrev(), [])
+  useEffect(() => {
+    return () => {
+      releasePrev()
+    }
+  }, [])
 
   async function handlePreview() {
     if (!previewText.trim() || model.state !== 'trained') return
+
     setPreviewLoading(true)
     setPreviewError('')
     releasePrev()
+
     try {
       const url = await previewVoice(model._id, previewText.trim())
       prevUrlRef.current = url
       setPreviewUrl(url)
       setTimeout(() => audioRef.current?.play().catch(() => {}), 50)
     } catch (err) {
-      setPreviewError(err.message || 'Preview failed')
+      setPreviewError(err.message || t('voiceClone.previewFailed'))
     } finally {
       setPreviewLoading(false)
     }
   }
 
   async function handleDelete() {
-    if (!confirm(`Delete voice "${model.title}"? This cannot be undone.`)) return
+    const title = model.title || t('voiceClone.untitledVoice')
+    if (!confirm(t('voiceClone.deleteConfirm', { title }))) return
+
     setDeleting(true)
+
     try {
       await deleteVoiceModel(model._id)
       onDeleted(model._id)
     } catch (err) {
-      alert(err.message || 'Delete failed')
+      alert(err.message || t('voiceClone.deleteFailed'))
       setDeleting(false)
     }
   }
@@ -53,11 +68,17 @@ export default function VoiceCard({ model, onDeleted }) {
     <div className="vc-voice-card">
       <div className="vc-voice-card-header">
         <div>
-          <div className="vc-voice-name">{model.title || 'Untitled Voice'}</div>
-          <div className="vc-voice-meta">Created {formatDate(model.created_at)}</div>
+          <div className="vc-voice-name">
+            {model.title || t('voiceClone.untitledVoice')}
+          </div>
+
+          <div className="vc-voice-meta">
+            {t('voiceClone.createdMeta', { date: formatDate(model.created_at) })}
+          </div>
         </div>
+
         <span className={`vc-voice-status ${statusClass(model.state)}`}>
-          {statusLabel(model.state)}
+          {statusIcon(model.state)} {t(statusLabelKey(model.state))}
         </span>
       </div>
 
@@ -66,27 +87,30 @@ export default function VoiceCard({ model, onDeleted }) {
           <textarea
             className="vc-preview-input"
             value={previewText}
-            onChange={(e) => setPreviewText(e.target.value)}
-            placeholder="Type something to preview…"
+            onChange={(event) => setPreviewText(event.target.value)}
+            placeholder={t('voiceClone.previewPlaceholder')}
             rows={2}
           />
+
           <div className="vc-preview-actions">
             <button
               className="vc-preview-btn"
               onClick={handlePreview}
               disabled={previewLoading || !previewText.trim()}
             >
-              {previewLoading ? <span className="vc-spinner" /> : '▶'}
-              {previewLoading ? ' Generating…' : ' Preview'}
+              {previewLoading ? <span className="vc-spinner" /> : '\u25B6'}
+              {previewLoading ? ` ${t('voiceClone.generating')}` : ` ${t('voiceClone.preview')}`}
             </button>
+
             <button className="vc-delete-btn" onClick={handleDelete} disabled={deleting}>
-              {deleting ? <span className="vc-spinner" /> : '✕'} Delete
+              {deleting ? <span className="vc-spinner" /> : '\u2715'} {t('voiceClone.delete')}
             </button>
           </div>
 
           {previewError && (
             <div className="vc-banner vc-banner--error">
-              <span className="vc-banner-icon">⚠</span>{previewError}
+              <span className="vc-banner-icon" aria-hidden="true">!</span>
+              {previewError}
             </div>
           )}
 
@@ -97,7 +121,7 @@ export default function VoiceCard({ model, onDeleted }) {
       ) : (
         <div className="vc-preview-actions" style={{ justifyContent: 'flex-end' }}>
           <button className="vc-delete-btn" onClick={handleDelete} disabled={deleting}>
-            {deleting ? <span className="vc-spinner" /> : '✕'} Delete
+            {deleting ? <span className="vc-spinner" /> : '\u2715'} {t('voiceClone.delete')}
           </button>
         </div>
       )}

@@ -1,35 +1,47 @@
-import { useCallback, useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
+
+import { useTranslation } from '../../../i18n/useTranslation.js'
 import { listVoiceModels } from '../../../services/voiceCloneService.js'
 import VoiceCard from './VoiceCard.jsx'
 
 export default function MyVoicesTab() {
-  const [models,  setModels]  = useState([])
+  const { t } = useTranslation()
+  const [models, setModels] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState('')
+  const [error, setError] = useState('')
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const list = await listVoiceModels()
-      setModels(list)
-    } catch (err) {
-      setError(err.message || 'Failed to load voices')
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let mounted = true
+
+    async function load() {
+      setLoading(true)
+      setError('')
+
+      try {
+        const list = await listVoiceModels()
+        if (mounted) setModels(list)
+      } catch (err) {
+        if (mounted) setError(err.message || t('voiceClone.loadVoicesFailed'))
+      } finally {
+        if (mounted) setLoading(false)
+      }
     }
-  }, [])
 
-  useEffect(() => { load() }, [load])
+    load()
+
+    return () => {
+      mounted = false
+    }
+  }, [t])
 
   function handleDeleted(id) {
-    setModels((prev) => prev.filter((m) => m._id !== id))
+    setModels((prev) => prev.filter((model) => model._id !== id))
   }
 
   if (loading) {
     return (
       <div className="vc-list-loading">
-        <span className="vc-spinner" /> Loading voices…
+        <span className="vc-spinner" /> {t('voiceClone.loadingVoices')}
       </div>
     )
   }
@@ -37,7 +49,8 @@ export default function MyVoicesTab() {
   if (error) {
     return (
       <div className="vc-banner vc-banner--error">
-        <span className="vc-banner-icon">⚠</span>{error}
+        <span className="vc-banner-icon" aria-hidden="true">!</span>
+        {error}
       </div>
     )
   }
@@ -45,19 +58,17 @@ export default function MyVoicesTab() {
   if (models.length === 0) {
     return (
       <div className="vc-empty">
-        <div className="vc-empty-icon">🎙</div>
-        <div className="vc-empty-text">No voice models yet — clone your first voice!</div>
+        <div className="vc-empty-icon" aria-hidden="true">Voice</div>
+        <div className="vc-empty-text">{t('voiceClone.emptyVoices')}</div>
       </div>
     )
   }
 
   return (
     <div className="vc-voices-grid">
-      {models.map((m) => (
-        <VoiceCard key={m._id} model={m} onDeleted={handleDeleted} />
+      {models.map((model) => (
+        <VoiceCard key={model._id} model={model} onDeleted={handleDeleted} />
       ))}
     </div>
   )
 }
-
-// ── Clone tab ─────────────────────────────────────────────────────────────
