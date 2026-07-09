@@ -1,18 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { useTranslation } from '../i18n/useTranslation.js'
 
 import RequireAuth from './RequireAuth.jsx'
-import Login from '../pages/auth/Login.jsx'
-import Dashboard from '../pages/Dashboard.jsx'
-import Chat from '../pages/Chat.jsx'
-import SignUpPage from '../pages/auth/SignUp.jsx'
 
-import Settings from '../pages/settings/Settings.jsx'
-import AppearanceSettings from '../pages/settings/Appearance.jsx'
-import PrivacySettings from '../pages/settings/Privacy.jsx'
-import Translator from '../pages/translator/Translator.jsx'
-import VoiceCloning from '../pages/voice-clone/VoiceClone.jsx'
+
+
+const Login = lazy(() => import('../pages/auth/Login.jsx'))
+const Dashboard = lazy(() => import('../pages/Dashboard.jsx'))
+const Chat = lazy(() => import('../pages/Chat.jsx'))
+const SignUpPage = lazy(() => import('../pages/auth/SignUp.jsx'))
+const Settings = lazy(() => import('../pages/settings/Settings.jsx'))
+const AppearanceSettings = lazy(() => import('../pages/settings/Appearance.jsx'))
+const PrivacySettings = lazy(() => import('../pages/settings/Privacy.jsx'))
+const Translator = lazy(() => import('../pages/translator/Translator.jsx'))
+const VoiceCloning = lazy(() => import('../pages/voice-clone/VoiceClone.jsx'))
 
 const STORAGE_KEY = 'teto_settings_v1'
 
