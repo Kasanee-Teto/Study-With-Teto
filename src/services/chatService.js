@@ -1,6 +1,5 @@
-import { getJSON, postJSON } from '../lib/api'
+import { getJSON, patchJSON, postJSON } from '../lib/api'
 import { generateReply } from './aiService'
-import { supabase } from '../lib/supabaseClient'
 
 const CONTEXT_LIMIT = 40
 
@@ -15,34 +14,7 @@ export async function createSession(title = 'New chat') {
 }
 
 export async function updateSessionTitle(sessionId, title) {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-  if (sessionError) throw new Error(sessionError.message)
-
-  const accessToken = sessionData?.session?.access_token
-  if (!accessToken) throw new Error('Unauthorized')
-
-  const response = await fetch(`/api/chat/sessions/${sessionId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify({ title })
-  })
-
-  const raw = await response.text()
-  let data = {}
-  try {
-    data = raw ? JSON.parse(raw) : {}
-  } catch {
-    data = { raw }
-  }
-
-  if (!response.ok) {
-    throw new Error(data?.error || 'Failed to update session title')
-  }
-
-  return data
+  return patchJSON(`/api/chat/sessions/${sessionId}`, { title })
 }
 
 export async function listMessages(sessionId, limit = 200) {

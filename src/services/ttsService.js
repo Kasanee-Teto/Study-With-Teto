@@ -1,4 +1,4 @@
-﻿import { apiUrl } from '../lib/apiUrl.js'
+import { apiUrl } from '../lib/apiUrl.js'
 
 export async function synthesizeSpeech(text) {
   const response = await fetch(apiUrl('/api/tts'), {

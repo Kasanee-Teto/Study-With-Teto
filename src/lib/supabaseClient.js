@@ -1,6 +1,6 @@
-﻿import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
-const DEV_MOCK_AUTH = import.meta.env.VITE_DEV_MOCK_AUTH === 'true'
+const DEV_MOCK_AUTH = import.meta.env.DEV && import.meta.env.VITE_DEV_MOCK_AUTH === 'true'
 
 const mockUser = {
   id: '00000000-0000-0000-0000-000000000001',
