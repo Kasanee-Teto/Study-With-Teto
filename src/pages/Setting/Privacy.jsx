@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslation } from '../../i18n/config.jsx'
+import { useTranslation } from '../../i18n/useTranslation.js'
 import '../settings.css'
 
 const PRIVACY_STORAGE_KEY = 'teto_privacy_v1'

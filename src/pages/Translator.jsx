@@ -5,8 +5,9 @@
  * Pipeline: Record → ASR (Fish) → LibreTranslate → TTS (Fish) → Play
  */
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import { Link }                           from 'react-router-dom'
+import { useTranslation } from '../i18n/useTranslation.js'
 import { startRecording, transcribeAudio } from '../services/asrService.js'
 import { translateIdToEn }                 from '../services/translateService.js'
 import { synthesizeSpeech }                from '../services/ttsService.js'
@@ -25,14 +26,14 @@ const STEP = {
   ERROR:        'error',
 }
 
-const STEP_LABELS = {
-  [STEP.IDLE]:         'Ready to translate',
-  [STEP.RECORDING]:    'Recording… tap again to stop',
-  [STEP.TRANSCRIBING]: 'Transcribing speech…',
-  [STEP.TRANSLATING]:  'Translating to English…',
-  [STEP.SYNTHESISING]: 'Generating audio…',
-  [STEP.DONE]:         'Done!',
-  [STEP.ERROR]:        'Something went wrong',
+const STEP_LABEL_KEYS = {
+  [STEP.IDLE]:         'translator.ready',
+  [STEP.RECORDING]:    'translator.recording',
+  [STEP.TRANSCRIBING]: 'translator.transcribing',
+  [STEP.TRANSLATING]:  'translator.translating',
+  [STEP.SYNTHESISING]: 'translator.synthesising',
+  [STEP.DONE]:         'translator.done',
+  [STEP.ERROR]:        'translator.error',
 }
 
 // ---------------------------------------------------------------------------
@@ -40,6 +41,7 @@ const STEP_LABELS = {
 // ---------------------------------------------------------------------------
 
 export default function Translator() {
+  const { t } = useTranslation()
   const [step,        setStep]        = useState(STEP.IDLE)
   const [transcript,  setTranscript]  = useState('')   // ID text
   const [translation, setTranslation] = useState('')   // EN text
@@ -61,7 +63,7 @@ export default function Translator() {
   // -------------------------------------------------------------------------
   // Main pipeline
   // -------------------------------------------------------------------------
-  const handleRecord = useCallback(async () => {
+  async function handleRecord() {
     // If already recording → stop
     if (step === STEP.RECORDING && recorderRef.current) {
       try {
@@ -69,7 +71,7 @@ export default function Translator() {
         recorderRef.current = null
         await runPipeline(blob, mimeType)
       } catch (err) {
-        setErrorMsg(err.message || 'Failed to stop recording')
+        setErrorMsg(err.message || t('translator.stopRecordingError'))
         setStep(STEP.ERROR)
       }
       return
@@ -87,30 +89,30 @@ export default function Translator() {
       const handle = await startRecording()
       recorderRef.current = handle
     } catch (err) {
-      setErrorMsg(err.message || 'Microphone unavailable')
+      setErrorMsg(err.message || t('translator.microphoneUnavailable'))
       setStep(STEP.ERROR)
     }
-  }, [step])
+  }
 
   async function runPipeline(blob, mimeType) {
     try {
       // 1. ASR
       setStep(STEP.TRANSCRIBING)
       const { text: idText } = await transcribeAudio(blob, mimeType)
-      if (!idText.trim()) throw new Error('No speech detected — please speak clearly and try again.')
+      if (!idText.trim()) throw new Error(t('translator.noSpeech'))
       setTranscript(idText)
 
       // 2. Translate
       setStep(STEP.TRANSLATING)
       const { translatedText: enText } = await translateIdToEn(idText)
-      if (!enText.trim()) throw new Error('Translation returned empty result.')
+      if (!enText.trim()) throw new Error(t('translator.emptyTranslation'))
       setTranslation(enText)
 
       // 3. TTS
       setStep(STEP.SYNTHESISING)
       const result = await synthesizeSpeech(enText)
       if (result.mode !== 'audio' || !result.url) {
-        throw new Error(result.error || 'TTS failed — no audio returned.')
+        throw new Error(result.error || t('translator.ttsFailed'))
       }
       prevUrlRef.current = result.url
       setAudioUrl(result.url)
@@ -124,7 +126,7 @@ export default function Translator() {
       setStep(STEP.DONE)
     } catch (err) {
       console.error('[translator]', err)
-      setErrorMsg(err.message || 'Pipeline failed')
+      setErrorMsg(err.message || t('translator.pipelineFailed'))
       setStep(STEP.ERROR)
     }
   }
@@ -156,6 +158,7 @@ export default function Translator() {
   const isBusy      = [STEP.TRANSCRIBING, STEP.TRANSLATING, STEP.SYNTHESISING].includes(step)
   const isDone      = step === STEP.DONE
   const isError     = step === STEP.ERROR
+  const stepLabel   = t(STEP_LABEL_KEYS[step])
 
   // ---------------------------------------------------------------------------
   // Render
@@ -167,14 +170,14 @@ export default function Translator() {
 
       {/* ── Header ── */}
       <header className="translator-header">
-        <Link to="/dashboard" className="translator-back">← Back</Link>
+        <Link to="/dashboard" className="translator-back">{t('translator.back')}</Link>
         <div className="translator-title-group">
           <h1 className="translator-title">
             <span className="translator-title-id">ID</span>
             <span className="translator-arrow">→</span>
             <span className="translator-title-en">EN</span>
           </h1>
-          <p className="translator-subtitle">Speech translation · Indonesian to English</p>
+          <p className="translator-subtitle">{t('translator.subtitle')}</p>
         </div>
         <div style={{ width: 72 }} /* add spacer for centering */ />
       </header>
@@ -188,7 +191,7 @@ export default function Translator() {
             className={`mic-btn ${isRecording ? 'mic-btn--recording' : ''} ${isBusy ? 'mic-btn--busy' : ''}`}
             onClick={handleRecord}
             disabled={isBusy}
-            aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+            aria-label={isRecording ? t('translator.stopRecording') : t('translator.startRecording')}
           >
             {isBusy ? (
               <Spinner />
@@ -201,7 +204,7 @@ export default function Translator() {
           </button>
 
           <p className="mic-status">
-            {STEP_LABELS[step]}
+            {stepLabel}
           </p>
         </div>
 
@@ -221,10 +224,10 @@ export default function Translator() {
             <section className="result-panel result-panel--id">
               <header className="result-panel-header">
                 <span className="result-lang-badge result-lang-badge--id">ID</span>
-                <span className="result-panel-label">Transcript</span>
+                <span className="result-panel-label">{t('translator.transcript')}</span>
               </header>
               <p className="result-text">
-                {transcript || <span className="result-placeholder">Transcribing…</span>}
+                {transcript || <span className="result-placeholder">{t('translator.transcribingPlaceholder')}</span>}
               </p>
             </section>
 
@@ -232,10 +235,10 @@ export default function Translator() {
             <section className="result-panel result-panel--en">
               <header className="result-panel-header">
                 <span className="result-lang-badge result-lang-badge--en">EN</span>
-                <span className="result-panel-label">Translation</span>
+                <span className="result-panel-label">{t('translator.translation')}</span>
               </header>
               <p className="result-text">
-                {translation || <span className="result-placeholder">Translating…</span>}
+                {translation || <span className="result-placeholder">{t('translator.translatingPlaceholder')}</span>}
               </p>
             </section>
           </div>
@@ -253,7 +256,7 @@ export default function Translator() {
                 }
               }}
             >
-              ▶ Play again
+              {t('translator.playAgain')}
             </button>
 
             <a
@@ -261,7 +264,7 @@ export default function Translator() {
               href={audioUrl}
               download="translation.mp3"
             >
-              ↓ Download MP3
+              {t('translator.downloadMp3')}
             </a>
           </div>
         )}
@@ -269,14 +272,14 @@ export default function Translator() {
         {/* ── Reset button ── */}
         {(isDone || isError || transcript) && (
           <button className="translator-reset-btn" onClick={reset}>
-            ↺ Translate again
+            {t('translator.translateAgain')}
           </button>
         )}
 
         {/* ── Tip ── */}
         {step === STEP.IDLE && (
           <p className="translator-tip">
-            Tap the microphone, speak in Indonesian, then tap again to translate.
+            {t('translator.tip')}
           </p>
         )}
       </main>

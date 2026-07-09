@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useEffect, useMemo, useState } from 'react'
 import './dashboard.css'
-import { useTranslation } from '../i18n/config.jsx'
+import { useTranslation } from '../i18n/useTranslation.js'
 
 import feedbackIcon from '../assets/feedback.png'
 import settingsIcon from '../assets/settings.png'
@@ -230,15 +230,15 @@ export default function Dashboard() {
 
           <Link to="/voice-cloning" className="card group flex flex-col ...">
             <div className="card-content px-5 py-5 text-center">
-              <h3>🎙 Voice Cloning</h3>
-              <p className="mt-2 text-sm text-gray-600">Clone any voice with Fish Audio AI</p>
+              <h3>{t('dashboard.voiceCloning')}</h3>
+              <p className="mt-2 text-sm text-gray-600">{t('dashboard.voiceCloningDesc')}</p>
             </div>
           </Link>
 
           <Link to="/translator" className="card group flex flex-col ...">
             <div className="card-content px-5 py-5 text-center">
-              <h3>Translate</h3>
-              <p className="mt-2 text-sm text-gray-600">Translate text in real-time with Teto</p>
+              <h3>{t('dashboard.translate')}</h3>
+              <p className="mt-2 text-sm text-gray-600">{t('dashboard.translateDesc')}</p>
             </div>
           </Link>
         </div>
@@ -315,7 +315,7 @@ export default function Dashboard() {
                 type="button"
                 className="feedback-close"
                 onClick={() => setFeedbackOpen(false)}
-                aria-label="Close"
+                aria-label={t('dashboard.close')}
               >
                 ×
               </button>

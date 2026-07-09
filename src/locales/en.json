@@ -23,7 +23,12 @@
     "feedbackSuccess": "Thanks! Feedback sent.",
     "closeMenu": "Close menu",
     "openMenu": "Open menu",
-    "deleteTask": "Delete task"
+    "deleteTask": "Delete task",
+    "voiceCloning": "Voice Cloning",
+    "voiceCloningDesc": "Clone any voice with Fish Audio AI",
+    "translate": "Translate",
+    "translateDesc": "Translate text in real-time with Teto",
+    "close": "Close"
   },
   "settings": {
     "title": "Settings",
@@ -74,5 +79,55 @@
     "deleteCancel": "Cancel",
     "deleteConfirm": "Delete",
     "deleting": "Deleting…"
+  },
+  "login": {
+    "welcome": "Welcome To Teto Chatbot",
+    "login": "Login",
+    "signUp": "Sign Up",
+    "email": "E-mail",
+    "password": "Password",
+    "username": "Username",
+    "confirmPassword": "Confirm password",
+    "loginLegend": "Please, enter your email and password for login.",
+    "signUpLegend": "Please, enter your username, password and password confirmation for sign up.",
+    "loggingIn": "Logging in...",
+    "creatingAccount": "Creating Account...",
+    "continue": "Continue",
+    "passwordMismatch": "Passwords do not match",
+    "checkEmail": "Check your email for confirmation link",
+    "emailSignUpLegend": "Please, enter your email, password and password confirmation for sign up."
+  },
+  "translator": {
+    "back": "Back",
+    "subtitle": "Speech translation - Indonesian to English",
+    "ready": "Ready to translate",
+    "recording": "Recording... tap again to stop",
+    "transcribing": "Transcribing speech...",
+    "translating": "Translating to English...",
+    "synthesising": "Generating audio...",
+    "done": "Done!",
+    "error": "Something went wrong",
+    "startRecording": "Start recording",
+    "stopRecording": "Stop recording",
+    "transcript": "Transcript",
+    "translation": "Translation",
+    "transcribingPlaceholder": "Transcribing...",
+    "translatingPlaceholder": "Translating...",
+    "playAgain": "Play again",
+    "downloadMp3": "Download MP3",
+    "translateAgain": "Translate again",
+    "tip": "Tap the microphone, speak in Indonesian, then tap again to translate.",
+    "stopRecordingError": "Failed to stop recording",
+    "microphoneUnavailable": "Microphone unavailable",
+    "noSpeech": "No speech detected - please speak clearly and try again.",
+    "emptyTranslation": "Translation returned empty result.",
+    "ttsFailed": "TTS failed - no audio returned.",
+    "pipelineFailed": "Pipeline failed"
+  },
+  "common": {
+    "loading": "Loading...",
+    "pageNotFound": "404 - Page Not Found",
+    "pageNotFoundDesc": "The page you are looking for does not exist.",
+    "goHome": "Go home"
   }
 }

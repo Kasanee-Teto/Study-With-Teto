@@ -1,8 +1,10 @@
 import { Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { useTranslation } from '../i18n/useTranslation.js'
 
 export default function RequireAuth({ children }) {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [session, setSession] = useState(null)
 
@@ -30,7 +32,7 @@ export default function RequireAuth({ children }) {
     }
   }, [])
 
-  if (loading) return <div>Loading...</div>
+  if (loading) return <div>{t('common.loading')}</div>
   if (!session) return <Navigate to="/login" replace />
   return children
 }
