@@ -1,12 +1,15 @@
-import { useRef, useState } from 'react'
+﻿import { useRef, useState } from 'react'
+
+import { useTranslation } from '../../../i18n/useTranslation.js'
 import { startRecording } from '../../../services/asrService.js'
 import { blobToBase64, convertToWav } from '../../../services/voiceCloneService.js'
 import LiveWaveform from './LiveWaveform.jsx'
 
 export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled }) {
-  const fileRef    = useRef(null)
+  const { t } = useTranslation()
+  const fileRef = useRef(null)
+  const recHandle = useRef(null)
   const [recording, setRecording] = useState(false)
-  const recHandle  = useRef(null)
 
   async function handleRecord() {
     if (recording && recHandle.current) {
@@ -14,39 +17,49 @@ export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled
         const { blob } = await recHandle.current.stop()
         recHandle.current = null
         setRecording(false)
+
         const wavBlob = await convertToWav(blob)
-        const base64  = await blobToBase64(wavBlob)
-        onUpdate({ audio: base64, mimeType: 'audio/wav', name: `recording-${index + 1}.wav` })
+        const base64 = await blobToBase64(wavBlob)
+
+        onUpdate({
+          audio: base64,
+          mimeType: 'audio/wav',
+          name: `recording-${index + 1}.wav`
+        })
       } catch (err) {
         setRecording(false)
-        alert(err.message || 'Recording error')
+        alert(err.message || t('voiceClone.recordingError'))
       }
+
       return
     }
+
     try {
       setRecording(true)
       const handle = await startRecording()
       recHandle.current = handle
     } catch (err) {
       setRecording(false)
-      alert(err.message || 'Microphone unavailable')
+      alert(err.message || t('voiceClone.microphoneUnavailable'))
     }
   }
 
-  async function handleFile(e) {
-    const file = e.target.files?.[0]
+  async function handleFile(event) {
+    const file = event.target.files?.[0]
     if (!file) return
-    e.target.value = ''
+
+    event.target.value = ''
 
     let blob = file
     let name = file.name
-    // Convert to WAV for best Fish compatibility
+
     try {
       blob = await convertToWav(file)
       name = file.name.replace(/\.[^.]+$/, '.wav')
     } catch {
-      // fall through with original
+      // Keep original audio if browser conversion fails.
     }
+
     const base64 = await blobToBase64(blob)
     onUpdate({ audio: base64, mimeType: 'audio/wav', name })
   }
@@ -56,7 +69,10 @@ export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled
   return (
     <div className={`vc-sample-slot ${hasAudio ? 'has-audio' : ''}`}>
       <div className="vc-sample-header">
-        <span className="vc-sample-number">Sample {index + 1}</span>
+        <span className="vc-sample-number">
+          {t('voiceClone.sample', { number: index + 1 })}
+        </span>
+
         <div className="vc-sample-actions">
           <button
             type="button"
@@ -65,7 +81,7 @@ export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled
             disabled={disabled}
           >
             <span className="vc-record-dot" />
-            {recording ? 'Stop' : 'Record'}
+            {recording ? t('voiceClone.stop') : t('voiceClone.record')}
           </button>
 
           <button
@@ -74,7 +90,7 @@ export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled
             onClick={() => fileRef.current?.click()}
             disabled={disabled || recording}
           >
-            ↑ Upload
+            <span aria-hidden="true">&uarr;</span> {t('voiceClone.upload')}
           </button>
 
           {index > 0 && (
@@ -83,9 +99,9 @@ export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled
               className="vc-delete-btn"
               onClick={onRemove}
               disabled={disabled}
-              title="Remove sample"
+              title={t('voiceClone.removeSample')}
             >
-              ✕
+              <span aria-hidden="true">&times;</span>
             </button>
           )}
         </div>
@@ -103,21 +119,19 @@ export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled
 
       {hasAudio && !recording && (
         <div className="vc-sample-ready">
-          <span className="vc-sample-ready-icon">✓</span>
-          {sample.name || 'Audio ready'}
+          <span className="vc-sample-ready-icon" aria-hidden="true">✓</span>
+          {sample.name || t('voiceClone.audioReady')}
         </div>
       )}
 
       <textarea
         className="vc-transcript"
         rows={2}
-        placeholder="Enter the exact transcript of this audio clip…"
+        placeholder={t('voiceClone.transcriptPlaceholder')}
         value={sample?.text || ''}
-        onChange={(e) => onUpdate({ text: e.target.value })}
+        onChange={(event) => onUpdate({ text: event.target.value })}
         disabled={disabled}
       />
     </div>
   )
 }
-
-// ── My Voices tab ─────────────────────────────────────────────────────────
