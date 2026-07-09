@@ -5,10 +5,10 @@ A full-stack AI study assistant and chatbot featuring the persona of Kasane Teto
 ---
 
 ## 🛠 Tech Stack
-- **Frontend:** React 18, Vite, React Router, TailwindCSS
+- **Frontend:** React 19, Vite 8, React Router 7, TailwindCSS 4
 - **Backend:** Vercel Serverless Functions (Node.js)
 - **Database & Auth:** Supabase (PostgreSQL, Auth, Row Level Security)
-- **AI Providers:** OpenRouter, Groq (Fallback)
+- **AI Providers:** OpenRouter, Groq (fallback)
 - **Audio/TTS/ASR/Voice Cloning:** Fish Audio API, Browser Native `SpeechSynthesis`
 - **Machine Translation:** LibreTranslate (self-hosted or hosted instance)
 
@@ -61,14 +61,14 @@ A full-stack AI study assistant and chatbot featuring the persona of Kasane Teto
 This project is built using **React + Vite** for the frontend and **Vercel Serverless Functions** (located in the `/api` directory) for the backend.
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js v20.19+ or v22.12+ (required by Vite 8 and `@supabase/supabase-js`; Node 18 is **not** sufficient despite some transitive packages claiming to support it)
 - Vercel CLI installed globally (`npm i -g vercel`)
 - A Supabase Project (for Auth and PostgreSQL tables: `app_users`, `chat_sessions`, `chat_messages`, `feedback`)
-- API Keys for OpenRouter, Groq, and Fish Audio
+- API Keys for OpenRouter and Fish Audio (required); Groq (optional, used only as an automatic fallback if OpenRouter fails)
 - A LibreTranslate endpoint (self-hosted or hosted) for the Speech Translator feature
 
 ### 1. Environment Variables
-Create a `.env` (or `.env.local`) file in the root of your project and populate it with the following keys:
+Create a `.env` (or `.env.local`) file in the root of your project and populate it with the following keys (see `.env.example` for a ready-to-copy template):
 
 ```env
 # Frontend (Vite)
@@ -85,8 +85,13 @@ SUPABASE_URL=your_supabase_project_url
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 OPENROUTER_API_KEY=your_openrouter_api_key
 OPENROUTER_DEFAULT_MODEL=your_preferred_openrouter_model
+
+# Optional — only needed if you want the automatic Groq fallback in api/ai.js
+# to work when every OpenRouter model attempt fails. Safe to leave unset;
+# the app still works with OpenRouter alone.
 GROQ_API_KEY=your_groq_api_key
 GROQ_DEFAULT_MODEL=your_preferred_groq_model
+
 FISH_API_KEY=your_fish_audio_api_key
 
 # LibreTranslate (used by the Speech Translator feature)
@@ -99,6 +104,8 @@ LIBRETRANSLATE_URL=http://localhost:5000
 # Not required when self-hosting with default settings.
 LIBRETRANSLATE_API_KEY=
 ```
+
+> **Note:** `api/chat/sessions/[id].js` (the session-retitle endpoint) authenticates as the signed-in user rather than the service role, so it reads the Supabase anon key from `SUPABASE_ANON_KEY` if set, falling back to `VITE_SUPABASE_ANON_KEY`. You don't need to duplicate the value — setting `VITE_SUPABASE_ANON_KEY` above is enough — but you can set `SUPABASE_ANON_KEY` explicitly if you prefer to keep client- and server-side vars separate.
 
 LibreTranslate publishes an official Docker image, so the quickest way to self-host it locally is:
 
@@ -251,7 +258,27 @@ CREATE POLICY "Users can manage own chat messages"
   ));
 ```
 
-You'll also need a `feedback` table for the in-app feedback modal (referenced by `src/pages/Dashboard.jsx`), with at minimum `user_id`, `username`, `email`, `message`, and `page` columns.
+You'll also need a `feedback` table for the in-app feedback modal (referenced by `src/pages/Dashboard.jsx`), with at minimum `user_id`, `username`, `email`, `message`, and `page` columns:
+
+```sql
+create table if not exists public.feedback (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  username text,
+  email text,
+  message text not null,
+  page text,
+  created_at timestamptz default now()
+);
+
+ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
+
+-- Dashboard.jsx inserts feedback as the signed-in user via the anon client,
+-- so an insert-only policy tied to the authenticated session is sufficient.
+CREATE POLICY "Users can submit their own feedback"
+  ON public.feedback FOR INSERT
+  WITH CHECK (auth.uid() IS NOT NULL);
+```
 
 ### 3. Install Dependencies
 Run the following command to install all required NPM packages:
@@ -277,4 +304,3 @@ To deploy to production, simply push your code to GitHub and connect your reposi
 vercel --prod
 ```
 *(Make sure to add all the environment variables in your Vercel project settings dashboard before deploying — including `LIBRETRANSLATE_URL` if the Speech Translator feature is in use).*
-```
