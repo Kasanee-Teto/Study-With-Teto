@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '../../../i18n/useTranslation.js'
 import { deleteVoiceModel, previewVoice } from '../../../services/voiceCloneService.js'
@@ -119,7 +119,7 @@ export default function VoiceCard({ model, onDeleted }) {
           )}
         </div>
       ) : (
-        <div className="vc-preview-actions" style={{ justifyContent: 'flex-end' }}>
+        <div className="vc-preview-actions vc-preview-actions--end">
           <button className="vc-delete-btn" onClick={handleDelete} disabled={deleting}>
             {deleting ? <span className="vc-spinner" /> : '\u2715'} {t('voiceClone.delete')}
           </button>

@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useTranslation } from '../../../i18n/useTranslation.js'
 import { startRecording } from '../../../services/asrService.js'
@@ -111,7 +111,7 @@ export default function SampleSlot({ index, sample, onUpdate, onRemove, disabled
         ref={fileRef}
         type="file"
         accept="audio/*"
-        style={{ display: 'none' }}
+        className="vc-file-input"
         onChange={handleFile}
       />
 

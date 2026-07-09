@@ -795,3 +795,27 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Layout utilities extracted from inline styles */
+.vc-header-spacer {
+  width: 72px;
+}
+
+.vc-tabs--wide {
+  width: 100%;
+  max-width: 820px;
+}
+
+.vc-clone-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.vc-preview-actions--end {
+  justify-content: flex-end;
+}
+
+.vc-file-input {
+  display: none;
+}

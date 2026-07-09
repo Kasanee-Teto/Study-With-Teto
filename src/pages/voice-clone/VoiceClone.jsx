@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useTranslation } from '../../i18n/useTranslation.js'
@@ -32,10 +32,10 @@ export default function VoiceClone() {
           <p className="vc-subtitle">{t('voiceClone.subtitle')}</p>
         </div>
 
-        <div style={{ width: 72 }} />
+        <div className="vc-header-spacer" aria-hidden="true" />
       </header>
 
-      <div className="vc-tabs" style={{ width: '100%', maxWidth: 820 }}>
+      <div className="vc-tabs vc-tabs--wide">
         <button
           className={`vc-tab ${activeTab === TAB.CLONE ? 'is-active' : ''}`}
           onClick={() => setActiveTab(TAB.CLONE)}

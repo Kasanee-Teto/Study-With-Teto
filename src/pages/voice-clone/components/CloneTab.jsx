@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 
 import { useTranslation } from '../../../i18n/useTranslation.js'
 import { createVoiceModel } from '../../../services/voiceCloneService.js'
@@ -78,7 +78,7 @@ export default function CloneTab({ onSuccess }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+    <div className="vc-clone-flow">
       <div className="vc-steps">
         {steps.map((label, index) => (
           <div className="vc-step-wrap" key={label}>
@@ -121,7 +121,6 @@ export default function CloneTab({ onSuccess }) {
             className="vc-add-sample"
             onClick={addSample}
             disabled={busy}
-            style={{ marginTop: 12 }}
           >
             {t('voiceClone.addSample')}
           </button>
