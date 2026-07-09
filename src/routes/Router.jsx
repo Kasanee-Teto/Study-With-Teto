@@ -3,6 +3,7 @@ import { Suspense, lazy, useEffect } from 'react'
 import { useTranslation } from '../i18n/useTranslation.js'
 
 import RequireAuth from './RequireAuth.jsx'
+import { ROUTES } from './paths.js'
 
 
 
@@ -80,12 +81,12 @@ export default function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<Login />} />
+        <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+        <Route path={ROUTES.SIGNUP} element={<SignUpPage />} />
+        <Route path={ROUTES.LOGIN} element={<Login />} />
 
         <Route
-          path="/dashboard"
+          path={ROUTES.DASHBOARD}
           element={
             <RequireAuth>
               <Dashboard />
@@ -93,7 +94,7 @@ export default function Router() {
           }
         />
         <Route
-          path="/chat"
+          path={ROUTES.CHAT}
           element={
             <RequireAuth>
               <Chat />
@@ -102,7 +103,7 @@ export default function Router() {
         />
 
         <Route
-          path="/settings"
+          path={ROUTES.SETTINGS}
           element={
             <RequireAuth>
               <Settings />
@@ -111,7 +112,7 @@ export default function Router() {
         />
 
         <Route
-          path="/settings/appearance"
+          path={ROUTES.SETTINGS_APPEARANCE}
           element={
             <RequireAuth>
               <AppearanceSettings />
@@ -120,7 +121,7 @@ export default function Router() {
         />
 
         <Route
-          path="/settings/privacy"
+          path={ROUTES.SETTINGS_PRIVACY}
           element={
             <RequireAuth>
               <PrivacySettings />
@@ -129,7 +130,7 @@ export default function Router() {
         />
 
         <Route
-          path="/translator"
+          path={ROUTES.TRANSLATOR}
           element={
             <RequireAuth>
               <Translator />
@@ -138,7 +139,7 @@ export default function Router() {
         />
 
         <Route
-          path="/voice-cloning"
+          path={ROUTES.VOICE_CLONING}
           element={
             <RequireAuth>
               <VoiceCloning />
