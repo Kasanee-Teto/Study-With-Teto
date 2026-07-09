@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { useTranslation } from '../i18n/useTranslation.js'
-import LanguageSwitcher from '../components/LanguageSwitcher'
-import { notificationService } from '../services/notificationServices'
+import { useTranslation } from '../../i18n/useTranslation.js'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
+import { notificationService } from '../../services/notificationServices'
 import './settings.css'
 
 export default function Settings() {

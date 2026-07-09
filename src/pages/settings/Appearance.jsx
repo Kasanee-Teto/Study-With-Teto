@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from '../../i18n/useTranslation.js'
-import '../settings.css'
+import './settings.css'
 
 const STORAGE_KEY = 'teto_settings_v1'
 

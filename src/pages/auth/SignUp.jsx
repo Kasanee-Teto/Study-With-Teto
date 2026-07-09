@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./sign_up.css";
-import { supabase } from '../lib/supabaseClient';
-import { useTranslation } from '../i18n/useTranslation.js';
+import { supabase } from '../../lib/supabaseClient';
+import { useTranslation } from '../../i18n/useTranslation.js';
 
 export default function SignUpPage() {
     const { t } = useTranslation();

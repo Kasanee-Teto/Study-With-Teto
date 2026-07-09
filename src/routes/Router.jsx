@@ -1,18 +1,21 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { useTranslation } from '../i18n/useTranslation.js'
 
 import RequireAuth from './RequireAuth.jsx'
-import Login from '../pages/Login.jsx'
-import Dashboard from '../pages/Dashboard.jsx'
-import Chat from '../pages/Chat.jsx'
-import SignUpPage from '../pages/SignUp.jsx'
+import { ROUTES } from './paths.js'
 
-import Settings from '../pages/settings.jsx'
-import AppearanceSettings from '../pages/Setting/Appearance.jsx'
-import PrivacySettings from '../pages/Setting/Privacy.jsx'
-import Translator from '../pages/Translator.jsx'
-import VoiceCloning from '../pages/VoiceClone.jsx'
+
+
+const Login = lazy(() => import('../pages/auth/Login.jsx'))
+const Dashboard = lazy(() => import('../pages/Dashboard.jsx'))
+const Chat = lazy(() => import('../pages/Chat.jsx'))
+const SignUpPage = lazy(() => import('../pages/auth/SignUp.jsx'))
+const Settings = lazy(() => import('../pages/settings/Settings.jsx'))
+const AppearanceSettings = lazy(() => import('../pages/settings/Appearance.jsx'))
+const PrivacySettings = lazy(() => import('../pages/settings/Privacy.jsx'))
+const Translator = lazy(() => import('../pages/translator/Translator.jsx'))
+const VoiceCloning = lazy(() => import('../pages/voice-clone/VoiceClone.jsx'))
 
 const STORAGE_KEY = 'teto_settings_v1'
 
@@ -78,12 +81,12 @@ export default function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<Login />} />
+        <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+        <Route path={ROUTES.SIGNUP} element={<SignUpPage />} />
+        <Route path={ROUTES.LOGIN} element={<Login />} />
 
         <Route
-          path="/dashboard"
+          path={ROUTES.DASHBOARD}
           element={
             <RequireAuth>
               <Dashboard />
@@ -91,7 +94,7 @@ export default function Router() {
           }
         />
         <Route
-          path="/chat"
+          path={ROUTES.CHAT}
           element={
             <RequireAuth>
               <Chat />
@@ -100,7 +103,7 @@ export default function Router() {
         />
 
         <Route
-          path="/settings"
+          path={ROUTES.SETTINGS}
           element={
             <RequireAuth>
               <Settings />
@@ -109,7 +112,7 @@ export default function Router() {
         />
 
         <Route
-          path="/settings/appearance"
+          path={ROUTES.SETTINGS_APPEARANCE}
           element={
             <RequireAuth>
               <AppearanceSettings />
@@ -118,7 +121,7 @@ export default function Router() {
         />
 
         <Route
-          path="/settings/privacy"
+          path={ROUTES.SETTINGS_PRIVACY}
           element={
             <RequireAuth>
               <PrivacySettings />
@@ -127,7 +130,7 @@ export default function Router() {
         />
 
         <Route
-          path="/translator"
+          path={ROUTES.TRANSLATOR}
           element={
             <RequireAuth>
               <Translator />
@@ -136,7 +139,7 @@ export default function Router() {
         />
 
         <Route
-          path="/voice-cloning"
+          path={ROUTES.VOICE_CLONING}
           element={
             <RequireAuth>
               <VoiceCloning />

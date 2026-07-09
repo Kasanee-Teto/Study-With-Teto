@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./login.css";
-import { supabase } from '../lib/supabaseClient';
-import { useTranslation } from '../i18n/useTranslation.js';
+import { supabase } from '../../lib/supabaseClient';
+import { useTranslation } from '../../i18n/useTranslation.js';
 
 export default function Login() {
     const { t } = useTranslation();

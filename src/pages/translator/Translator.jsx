@@ -7,10 +7,10 @@
 
 import { useState, useRef } from 'react'
 import { Link }                           from 'react-router-dom'
-import { useTranslation } from '../i18n/useTranslation.js'
-import { startRecording, transcribeAudio } from '../services/asrService.js'
-import { translateIdToEn }                 from '../services/translateService.js'
-import { synthesizeSpeech }                from '../services/ttsService.js'
+import { useTranslation } from '../../i18n/useTranslation.js'
+import { startRecording, transcribeAudio } from '../../services/asrService.js'
+import { translateIdToEn }                 from '../../services/translateService.js'
+import { synthesizeSpeech }                from '../../services/ttsService.js'
 import './translator.css'
 
 // ---------------------------------------------------------------------------
