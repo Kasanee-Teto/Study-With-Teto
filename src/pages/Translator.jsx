@@ -90,7 +90,7 @@ export default function Translator() {
       setErrorMsg(err.message || 'Microphone unavailable')
       setStep(STEP.ERROR)
     }
-  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step])
 
   async function runPipeline(blob, mimeType) {
     try {

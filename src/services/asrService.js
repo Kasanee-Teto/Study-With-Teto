@@ -1,3 +1,4 @@
+import { apiUrl } from '../lib/apiUrl.js'
 /**
  * src/services/asrService.js
  *
@@ -178,7 +179,7 @@ export async function transcribeAudio(audioBlob, mimeType = 'audio/webm') {
   const headers = { 'Content-Type': 'application/json' }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const resp = await fetch('/api/asr', {
+  const resp = await fetch(apiUrl('/api/asr'), {
     method:  'POST',
     headers,
     body:    JSON.stringify({ audio: base64, mimeType: uploadMime }),
