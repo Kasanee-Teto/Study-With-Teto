@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import { useTranslation } from '../i18n/useTranslation.js'
 
 import RequireAuth from './RequireAuth.jsx'
 import Login from '../pages/Login.jsx'
@@ -47,11 +48,12 @@ function applySettingsFromStorage() {
 }
 
 function NotFound() {
+  const { t } = useTranslation()
   return (
     <div style={{ padding: 24, textAlign: 'center' }}>
-      <h2>404 — Page Not Found</h2>
-      <p>The page you are looking for does not exist.</p>
-      <a href="/">Go home</a>
+      <h2>{t('common.pageNotFound')}</h2>
+      <p>{t('common.pageNotFoundDesc')}</p>
+      <a href="/">{t('common.goHome')}</a>
     </div>
   )
 }

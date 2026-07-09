@@ -23,7 +23,12 @@
     "feedbackSuccess": "Terima kasih! Umpan balik terkirim.",
     "closeMenu": "Tutup menu",
     "openMenu": "Buka menu",
-    "deleteTask": "Hapus tugas"
+    "deleteTask": "Hapus tugas",
+    "voiceCloning": "Kloning Suara",
+    "voiceCloningDesc": "Kloning suara apa pun dengan AI Fish Audio",
+    "translate": "Terjemahkan",
+    "translateDesc": "Terjemahkan teks secara real-time dengan Teto",
+    "close": "Tutup"
   },
   "settings": {
     "title": "Pengaturan",
@@ -74,5 +79,55 @@
     "deleteCancel": "Batal",
     "deleteConfirm": "Hapus",
     "deleting": "Menghapus…"
+  },
+  "login": {
+    "welcome": "Selamat Datang di Teto Chatbot",
+    "login": "Masuk",
+    "signUp": "Daftar",
+    "email": "E-mail",
+    "password": "Kata sandi",
+    "username": "Nama pengguna",
+    "confirmPassword": "Konfirmasi kata sandi",
+    "loginLegend": "Silakan masukkan email dan kata sandi untuk masuk.",
+    "signUpLegend": "Silakan masukkan nama pengguna, kata sandi, dan konfirmasi kata sandi untuk daftar.",
+    "loggingIn": "Sedang masuk...",
+    "creatingAccount": "Membuat akun...",
+    "continue": "Lanjutkan",
+    "passwordMismatch": "Kata sandi tidak cocok",
+    "checkEmail": "Periksa email Anda untuk tautan konfirmasi",
+    "emailSignUpLegend": "Silakan masukkan email, kata sandi, dan konfirmasi kata sandi untuk daftar."
+  },
+  "translator": {
+    "back": "Kembali",
+    "subtitle": "Terjemahan suara - Bahasa Indonesia ke Bahasa Inggris",
+    "ready": "Siap menerjemahkan",
+    "recording": "Merekam... ketuk lagi untuk berhenti",
+    "transcribing": "Mengubah suara menjadi teks...",
+    "translating": "Menerjemahkan ke Bahasa Inggris...",
+    "synthesising": "Membuat audio...",
+    "done": "Selesai!",
+    "error": "Terjadi kesalahan",
+    "startRecording": "Mulai merekam",
+    "stopRecording": "Berhenti merekam",
+    "transcript": "Transkrip",
+    "translation": "Terjemahan",
+    "transcribingPlaceholder": "Memproses transkrip...",
+    "translatingPlaceholder": "Menerjemahkan...",
+    "playAgain": "Putar lagi",
+    "downloadMp3": "Unduh MP3",
+    "translateAgain": "Terjemahkan lagi",
+    "tip": "Ketuk mikrofon, bicara dalam Bahasa Indonesia, lalu ketuk lagi untuk menerjemahkan.",
+    "stopRecordingError": "Gagal menghentikan rekaman",
+    "microphoneUnavailable": "Mikrofon tidak tersedia",
+    "noSpeech": "Tidak ada suara terdeteksi - bicara lebih jelas lalu coba lagi.",
+    "emptyTranslation": "Hasil terjemahan kosong.",
+    "ttsFailed": "TTS gagal - tidak ada audio yang dikembalikan.",
+    "pipelineFailed": "Pipeline gagal"
+  },
+  "common": {
+    "loading": "Memuat...",
+    "pageNotFound": "404 - Halaman Tidak Ditemukan",
+    "pageNotFoundDesc": "Halaman yang Anda cari tidak ada.",
+    "goHome": "Kembali ke beranda"
   }
 }
