@@ -17,8 +17,8 @@ import {
   previewVoice,
   blobToBase64,
   convertToWav,
-} from '../services/voiceCloneService.js'
-import { startRecording } from '../services/asrService.js'
+} from '../../services/voiceCloneService.js'
+import { startRecording } from '../../services/asrService.js'
 import './voice-clone.css'
 
 // ── constants ──────────────────────────────────────────────────────────────

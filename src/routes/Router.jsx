@@ -3,16 +3,16 @@ import { useEffect } from 'react'
 import { useTranslation } from '../i18n/useTranslation.js'
 
 import RequireAuth from './RequireAuth.jsx'
-import Login from '../pages/Login.jsx'
+import Login from '../pages/auth/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Chat from '../pages/Chat.jsx'
-import SignUpPage from '../pages/SignUp.jsx'
+import SignUpPage from '../pages/auth/SignUp.jsx'
 
-import Settings from '../pages/settings.jsx'
-import AppearanceSettings from '../pages/Setting/Appearance.jsx'
-import PrivacySettings from '../pages/Setting/Privacy.jsx'
-import Translator from '../pages/Translator.jsx'
-import VoiceCloning from '../pages/VoiceClone.jsx'
+import Settings from '../pages/settings/Settings.jsx'
+import AppearanceSettings from '../pages/settings/Appearance.jsx'
+import PrivacySettings from '../pages/settings/Privacy.jsx'
+import Translator from '../pages/translator/Translator.jsx'
+import VoiceCloning from '../pages/voice-clone/VoiceClone.jsx'
 
 const STORAGE_KEY = 'teto_settings_v1'
 
