@@ -1,3 +1,4 @@
+import { apiUrl } from '../lib/apiUrl.js'
 /**
  * src/services/translateService.js
  *
@@ -20,7 +21,7 @@ export async function translateIdToEn(text, source = 'id', target = 'en') {
     return { translatedText: '' }
   }
 
-  const resp = await fetch('/api/translate', {
+  const resp = await fetch(apiUrl('/api/translate'), {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ text: String(text).trim(), source, target }),

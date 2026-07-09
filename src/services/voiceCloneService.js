@@ -1,3 +1,4 @@
+import { apiUrl } from '../lib/apiUrl.js'
 /**
  * src/services/voiceCloneService.js
  *
@@ -22,7 +23,7 @@ async function authHeader() {
  */
 export async function listVoiceModels() {
   const headers = await authHeader()
-  const resp = await fetch('/api/voice-clone', { headers })
+  const resp = await fetch(apiUrl('/api/voice-clone'), { headers })
   const data = await resp.json()
   if (!resp.ok) throw new Error(data.error || 'Failed to list voices')
   return data.models || []
@@ -37,7 +38,7 @@ export async function listVoiceModels() {
  */
 export async function createVoiceModel({ title, samples }) {
   const headers = await authHeader()
-  const resp = await fetch('/api/voice-clone', {
+  const resp = await fetch(apiUrl('/api/voice-clone'), {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, samples }),
@@ -53,7 +54,7 @@ export async function createVoiceModel({ title, samples }) {
  */
 export async function deleteVoiceModel(id) {
   const headers = await authHeader()
-  const resp = await fetch(`/api/voice-clone?id=${encodeURIComponent(id)}`, {
+  const resp = await fetch(apiUrl(`/api/voice-clone?id=${encodeURIComponent(id)}`), {
     method: 'DELETE',
     headers,
   })
@@ -73,7 +74,7 @@ export async function deleteVoiceModel(id) {
  */
 export async function previewVoice(referenceId, text) {
   const headers = await authHeader()
-  const resp = await fetch('/api/voice-clone-preview', {
+  const resp = await fetch(apiUrl('/api/voice-clone-preview'), {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify({ referenceId, text }),

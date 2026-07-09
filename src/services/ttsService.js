@@ -1,5 +1,7 @@
+﻿import { apiUrl } from '../lib/apiUrl.js'
+
 export async function synthesizeSpeech(text) {
-  const response = await fetch('/api/tts', {
+  const response = await fetch(apiUrl('/api/tts'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text })
@@ -21,7 +23,6 @@ export async function synthesizeSpeech(text) {
     // ignore parse failure
   }
 
-  // Fish billing/quota issue, or any server failure => fallback
   return {
     mode: 'browser-tts',
     error: `Fish TTS unavailable (${response.status})${details ? `: ${details}` : ''}`

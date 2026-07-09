@@ -71,7 +71,7 @@ function SampleSlot({ index, sample, onUpdate, onRemove, disabled }) {
   async function handleRecord() {
     if (recording && recHandle.current) {
       try {
-        const { blob, mimeType } = await recHandle.current.stop()
+        const { blob } = await recHandle.current.stop()
         recHandle.current = null
         setRecording(false)
         const wavBlob = await convertToWav(blob)
