@@ -6,7 +6,7 @@ A full-stack AI study assistant and chatbot featuring the persona of Kasane Teto
 
 ## 🛠 Tech Stack
 - **Frontend:** React 19, Vite 8, React Router 7, TailwindCSS 4
-- **Backend:** Vercel Serverless Functions (Node.js)
+- **Backend:** Vercel Serverless Functions (Node.js), proxied locally by a small Express server (`local-api.js`) for `npm run dev`
 - **Database & Auth:** Supabase (PostgreSQL, Auth, Row Level Security)
 - **AI Providers:** OpenRouter, Groq (fallback)
 - **Audio/TTS/ASR/Voice Cloning:** Fish Audio API, Browser Native `SpeechSynthesis`
@@ -48,24 +48,25 @@ A full-stack AI study assistant and chatbot featuring the persona of Kasane Teto
 25. **Context Window Limiting:** The API automatically slices the conversation history to the last 40 messages (`CONTEXT_LIMIT`) before sending it to the LLM to save tokens and prevent context overflow.
 26. **Mobile-Responsive Overlays:** Click-outside-to-close behavior (`onMouseDown`) and touch-friendly overlay drawers for mobile left/right sidebars.
 27. **Global Error Boundary:** A React class component (`ErrorBoundary`) to gracefully catch unhandled rendering errors and provide a UI recovery/reload button instead of a white screen.
+28. **Local Express API Server (`local-api.js`):** A lightweight Express wrapper that mounts the same handler functions from `/api` so `npm run dev` can run the frontend and backend together without the Vercel CLI, including a `LOCAL_MOCK_API` mode that serves canned responses with zero external API keys.
 
 ### *Feature Counts*
 - **Frontend count:** 18
-- **Backend count:** 9
-- **Deduplicated total:** 27 implemented features
+- **Backend count:** 10
+- **Deduplicated total:** 28 implemented features
 
 ---
 
 ## 🚀 How to Start and Run the Repo
 
-This project is built using **React + Vite** for the frontend and **Vercel Serverless Functions** (located in the `/api` directory) for the backend.
+This project is built using **React + Vite** for the frontend and **Vercel Serverless Functions** (located in the `/api` directory) for the backend. For local development, `/api` is served through `local-api.js`, a small Express server that imports and mounts the same handler files — this is what `npm run dev` runs, so no Vercel CLI is required for day-to-day development.
 
 ### Prerequisites
 - Node.js v20.19+ or v22.12+ (required by Vite 8 and `@supabase/supabase-js`; Node 18 is **not** sufficient despite some transitive packages claiming to support it)
-- Vercel CLI installed globally (`npm i -g vercel`)
-- A Supabase Project (for Auth and PostgreSQL tables: `app_users`, `chat_sessions`, `chat_messages`, `feedback`)
-- API Keys for OpenRouter and Fish Audio (required); Groq (optional, used only as an automatic fallback if OpenRouter fails)
+- A Supabase Project (for Auth and PostgreSQL tables: `app_users`, `chat_sessions`, `chat_messages`, `feedback`) — not required if you only want to explore the UI in mock mode (see below)
+- API Keys for OpenRouter and Fish Audio (required for real AI/TTS/ASR/voice cloning); Groq (optional, used only as an automatic fallback if OpenRouter fails)
 - A LibreTranslate endpoint (self-hosted or hosted) for the Speech Translator feature
+- Vercel CLI (optional; only needed if you want to run via `vercel dev` instead of `npm run dev`, e.g. to test the deployment-shaped routing before pushing)
 
 ### 1. Environment Variables
 Create a `.env` (or `.env.local`) file in the root of your project and populate it with the following keys (see `.env.example` for a ready-to-copy template):
@@ -75,12 +76,20 @@ Create a `.env` (or `.env.local`) file in the root of your project and populate 
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Base URL of the API server (leave empty when using `vercel dev`, which serves
-# both the frontend and the /api/* functions on the same origin at port 3000).
-# Set this only if the API runs on a different port/host during development.
-VITE_API_BASE_URL=
+# Base URL of the API server.
+# - `npm run dev` runs Vite (port 5173) and local-api.js (port 3001) as two
+#   separate servers, so the frontend must be told where the API lives:
+VITE_API_BASE_URL=http://localhost:3001
+# - Leave this empty ONLY when using `vercel dev`, which serves both the
+#   frontend and the /api/* functions on the same origin (usually port 3000).
 
-# Backend (Vercel Serverless)
+# Optional — skips real Supabase auth entirely in dev and signs you in as a
+# mock user (see src/lib/supabaseClient.js). Handy for UI-only work when you
+# don't have Supabase credentials yet. Only takes effect when Vite's DEV mode
+# is on (i.e. never in a production build).
+VITE_DEV_MOCK_AUTH=false
+
+# Backend (Vercel Serverless / local-api.js)
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 OPENROUTER_API_KEY=your_openrouter_api_key
@@ -103,6 +112,13 @@ LIBRETRANSLATE_URL=http://localhost:5000
 # Optional — typically only needed for hosted/public instances that enforce an API key.
 # Not required when self-hosting with default settings.
 LIBRETRANSLATE_API_KEY=
+
+# Local dev server only (local-api.js) — both optional, shown with their defaults
+LOCAL_API_PORT=3001
+# Set to 'true' to run the backend in mock mode: every /api/* route returns
+# canned data and no real API keys (Supabase, OpenRouter, Fish, LibreTranslate)
+# are required. Great for quickly trying out the UI. See "Mock mode" below.
+LOCAL_MOCK_API=false
 ```
 
 > **Note:** `api/chat/sessions/[id].js` (the session-retitle endpoint) authenticates as the signed-in user rather than the service role, so it reads the Supabase anon key from `SUPABASE_ANON_KEY` if set, falling back to `VITE_SUPABASE_ANON_KEY`. You don't need to duplicate the value — setting `VITE_SUPABASE_ANON_KEY` above is enough — but you can set `SUPABASE_ANON_KEY` explicitly if you prefer to keep client- and server-side vars separate.
@@ -287,20 +303,48 @@ npm install
 ```
 
 ### 4. Run Locally for Development
-Because the app relies on Vercel Serverless Functions for its `/api/*` routes, running `vite` alone will not start the backend. **You must use the Vercel CLI to emulate the cloud environment:**
+
+**Recommended: `npm run dev`** — this is the default local workflow and does not require the Vercel CLI. It uses `concurrently` to start two servers side by side:
 
 ```bash
-vercel dev
+npm run dev
 ```
 
 This command will:
-1. Start the Vite development server for the frontend.
-2. Spin up a local Node.js environment to handle requests to `/api/*`.
-3. Provide you with a single `localhost` URL (usually `http://localhost:3000`) where both the frontend and backend are seamlessly mapped and proxy correctly.
+1. Start the Vite dev server for the frontend at `http://localhost:5173`.
+2. Start `local-api.js`, a small Express server, at `http://localhost:3001` (configurable via `LOCAL_API_PORT`). It imports the exact same handler functions from `/api` (including the dynamic `api/chat/sessions/[id].js` route) and exposes them as regular Express routes, so behavior matches the deployed Vercel functions.
+3. Because these are two separate origins, make sure `VITE_API_BASE_URL=http://localhost:3001` is set in your `.env`/`.env.local` (see the Environment Variables section above) so the frontend's `fetch` calls reach the API server instead of 404ing against Vite.
 
-### 5. Deployment
+You can also run either half on its own:
+```bash
+npm run dev:frontend   # Vite only, port 5173
+npm run dev:api        # local-api.js only, port 3001 (or LOCAL_API_PORT)
+```
+
+**Mock mode (no API keys required):** to explore the UI without configuring Supabase, OpenRouter, Fish Audio, or LibreTranslate, set both of the following before running `npm run dev`:
+```env
+LOCAL_MOCK_API=true       # local-api.js returns canned responses for every /api/* route
+VITE_DEV_MOCK_AUTH=true   # the frontend signs you in as a fake local user, skipping Supabase auth
+```
+In this mode, chat replies, session/message CRUD, translation, and voice-clone endpoints are all stubbed; only TTS/voice-clone-preview remain intentionally disabled (they return a 503) since they always require a real audio provider.
+
+**Alternative: `vercel dev`** — closer to the real deployment shape (single origin, Vercel's own router for the `/api` directory) but requires the Vercel CLI (`npm i -g vercel`) and, typically, a linked Vercel project:
+```bash
+vercel dev
+```
+When using `vercel dev`, leave `VITE_API_BASE_URL` empty, since the frontend and `/api/*` are served from the same origin (usually `http://localhost:3000`).
+
+### 5. Other useful scripts
+```bash
+npm run lint      # ESLint across api/ and src/
+npm run build     # Production build (vite build)
+npm run preview   # Preview the production build locally
+npm run check     # lint + build, useful as a pre-push sanity check
+```
+
+### 6. Deployment
 To deploy to production, simply push your code to GitHub and connect your repository to Vercel, or deploy directly via the Vercel CLI:
 ```bash
 vercel --prod
 ```
-*(Make sure to add all the environment variables in your Vercel project settings dashboard before deploying — including `LIBRETRANSLATE_URL` if the Speech Translator feature is in use).*
+*(Make sure to add all the environment variables in your Vercel project settings dashboard before deploying — including `LIBRETRANSLATE_URL` if the Speech Translator feature is in use. The `LOCAL_API_PORT`, `LOCAL_MOCK_API`, and `VITE_DEV_MOCK_AUTH` variables are dev-only and don't need to be set in production.)*
